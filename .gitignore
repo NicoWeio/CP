@@ -2,3 +2,5 @@ https://stackoverflow.com/questions/19023550/how-do-i-add-files-without-dots-in-
 *
 !/**/
 !*.*
+build/
+code/build
