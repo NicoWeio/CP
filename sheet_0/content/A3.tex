@@ -1,39 +1,41 @@
-\FloatBarrier
-\section{Aufgabe 3}
-\label{sec:A3}
-\subsection*{a)}
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{bild/a.png}
+\section{Aufgabe 3} \label{sec:A3}
+\subsection*{a)} \label{sec:A3:a}
+\begin{tcolorbox}
+  Implementieren Sie sowohl das Euler-Verfahren, als auch das symmetrische Euler-Verfahren
+  und starten Sie mit Anfangswerten $y_0 = 1$ und für das symmetrische Euler-Verfahren zusätzlich mit $y_1 = \exp(−∆t)$.
+  Vergleichen Sie Ihre Ergebnisse mit der analytischen Lösung im Intervall $t ∈ [0, 10]$.
+\end{tcolorbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{code/build/a3_a.pdf}
 \end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{code/build/a3_a.pdf}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{code/build/a3_a_diff.pdf}
 \end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{code/build/a3_a_diff.pdf}
-\end{figure}
-\FloatBarrier
 In der Abbildung mit den Differenzen zu den analytischen Werten
-kann man erkennen, dass bei dem Eulerverfahren, 
-die Differenz kleiner wird je mehr Punkte berechnet werden.
-Bei dem symmetrischen Eulerverfahren nicht die Differenz zu und osziliert
+kann man erkennen, dass bei dem Euler-Verfahren die Differenz kleiner wird,
+je mehr Punkte berechnet werden.
+Bei dem symmetrischen Euler-Verfahren nimmt die Diskrepanz zu und osziliert
 von negativen zu positiven Abweichungen.
-\FloatBarrier
-\subsection*{b)}
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{bild/b.png}
+
+
+\subsection*{b)} \label{sec:A3:b}
+\begin{tcolorbox}
+  Vergleichen Sie Ihre Ergebnisse aus dem vorigen Aufgabenteil mit den Ergebnissen,
+  wenn Sie das Euler-Verfahren mit $y_0 = 1 − ∆t$
+  und das symmetrische Euler-Verfahren mit $y_0 = 1$ und $y_1 = y_0 − ∆t$ starten.
+  Deuten Sie Ihre Ergebnisse.
+\end{tcolorbox}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{code/build/a3_b.pdf}
 \end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{code/build/a3_b.pdf}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{code/build/a3_b_diff.pdf}
 \end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{code/build/a3_b_diff.pdf}
-\end{figure}
-\FloatBarrier
-Vergleicht man die Abweichung mit Teil a) sind diese größer.
-Das heißt wie gut das Verfahren für das Problem ist, ist abhängig von den Startbedingungen.
+Vergleicht man die Abweichung mit Teil \hyperref[sec:A3:a]{a)}, sind diese größer.
+Das heißt: Wie gut das Verfahren für das Problem ist, ist abhängig von den Startbedingungen.
