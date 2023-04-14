@@ -52,14 +52,14 @@ int main() {
             "stable function g:"
          << endl;
     cout << "a) x = " << x_high << ", f(x) = " << f1(x_high)
-         << " , g(x) = " << g1(x_high)
+         << ", g(x) = " << g1(x_high)
          << ", rel. error: " << rel_error(g1(x_high), f1(x_high)) << endl;
     cout << "b) x = " << x_low << ", f(x) = " << f2(x_low)
-         << " , g(x) = " << g2(x_low)
+         << ", g(x) = " << g2(x_low)
          << ", rel. error: " << rel_error(g2(x_low), f2(x_low)) << endl;
     cout << "c) x = " << x_high << ", delta = " << delta
          << ", f(x) = " << f3(x_high, delta)
-         << " , g(x) = " << g3(x_high, delta)
+         << ", g(x) = " << g3(x_high, delta)
          << ", rel. error: " << rel_error(g3(x_high, delta), f3(x_high, delta))
          << endl;
 
