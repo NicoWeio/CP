@@ -16,8 +16,8 @@ build/main.pdf: FORCE | build
 	  --output-directory=build \
 	  --interaction=nonstopmode \
 	  --halt-on-error \
+	  --shell-escape \
 	main.tex
-	evince build/main.pdf &
 
 build:
 	mkdir -p build
