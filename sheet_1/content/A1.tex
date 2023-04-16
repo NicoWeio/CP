@@ -57,3 +57,28 @@
     Die Abweichungen sind um $10^1$ kleiner.}
 \end{figure}
 \FloatBarrier
+\FloatBarrier
+\subsection{d)}
+\begin{equation}
+    f'_2= 
+    \begin{cases}
+        2 \cdot  [1 / \pi] + \sin(x \text{mod} \pi) \quad x \geq 0 \\
+        2 \cdot  [1 / \pi] - \sin(x \text{mod}  \pi) \quad x > 0 \\
+    \end{cases}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_d_h.pdf}
+    \caption{Die erste Ableitung an $x=1,5$ mit in Abhängigkeit von der Schrittweite $h$ (halb-logarithmisch).
+    Die geringste Abweichung von dem analytischen Wert hat $h_{zwei}=0,0001$ für das Zweipunktverfahren und $h_{vier}=0,01$ für das Vierpunktverfahren (orange).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_d_x.pdf}
+    \caption{Die ersten Ableitungen beider Methoden geben ähnliche Werte.
+    Die Abweichungen sind für $x>0$ sehr klein
+    und zwischen $-\pi$ und $0$ parabelförmig.}
+\end{figure}
+

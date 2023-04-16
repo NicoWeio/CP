@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 
 #A1
@@ -82,4 +83,70 @@ plt.ylabel(r"$|f'_{vierpunkt}-f'_{analytisch}|$")
 plt.title(r"$f=\sin(x), h=0.01$")
 
 plt.savefig('build/A1_c_x.pdf')
+plt.clf()
+
+#d)#######################################################################################
+def f2(x):
+    if x >= 0:
+        return 2 * math.floor(1/np.pi) + np.sin(x % np.pi)
+    else :
+        return 2 * math.floor(1/np.pi) - np.sin(x % np.pi)
+#def f2(x):
+#    if x >= 0:
+#        return  + np.sin(x % np.pi)
+#    else :
+#        return  - np.sin(x % np.pi)
+
+hd2, dfd2= np.genfromtxt("build/A1_d_h2.csv", unpack=True, delimiter= ",")
+hd4, dfd4= np.genfromtxt("build/A1_d_h4.csv", unpack=True, delimiter= ",")
+
+fig, (ax1, ax2) = plt.subplots(2)
+fig.suptitle(r"$f_2, x=1.5$")
+
+ax1.plot(hd2, dfd2, "x")
+ax1.plot(hd2[np.where(np.abs(dfd2-f2(1.5))== np.amin(np.abs(dfd2-f2(1.5))))[0][0]], 
+         dfd2[np.where(np.abs(dfd2-f2(1.5))== np.amin(np.abs(dfd2-f2(1.5))))[0][0]], "x",label=r"${|f'_{zweipunkt}(1.5,h)}-f'(1.5)|_{min}}$")
+ax1.set(xscale="log", xlabel=r'$h$',ylabel= r"$f'_{zweipunkt}(x)$")
+ax1.legend(loc="best")
+
+print(hd2[np.where(np.abs(dfd2-f2(1.5))== np.amin(np.abs(dfd2-f2(1.5))))[0][0]])
+
+ax2.plot(hd4, dfd4, "x")
+ax2.plot(hd4[np.where(np.abs(dfd4-f2(1.5))== np.amin(np.abs(dfd4-f2(1.5))))[0][0]], 
+         dfd4[np.where(np.abs(dfd4-f2(1.5))== np.amin(np.abs(dfd4-f2(1.5))))[0][0]], "x",label=r"${|f'_{vierpunkt}(1.5,h)}-f'(1.5)|_{min}}$")
+ax2.set(xscale="log", xlabel=r'$h$',ylabel= r"$f'_{vierpunkt}(x)$")
+ax2.legend(loc="best")
+
+print(hd4[np.where(np.abs(dfd4-f2(1.5))== np.amin(np.abs(dfd4-f2(1.5))))[0][0]])
+
+
+plt.savefig('build/A1_d_h.pdf')
+plt.clf()
+
+########################
+
+def f22(x):
+    y=np.copy(x)
+    for i,e in enumerate(x):
+     y[i]= f2(e)
+    return(y)
+    
+xd2, dfdx2= np.genfromtxt("build/A1_d_x2.csv", unpack=True, delimiter= ",")
+xd4, dfdx4= np.genfromtxt("build/A1_d_x4.csv", unpack=True, delimiter= ",")
+
+fig, (ax1, ax2) = plt.subplots(2)
+fig.suptitle(r"$f_2, x=1.5, h_{zwei}= 0.0001, h_{vier}=0.01$")
+
+ax1.plot(xd2, np.abs(dfdx2-f22(xd2)), label= r"$|f'_{zweipunkt}-f'_{analytisch}|$")
+ax1.plot(xd4, np.abs(dfdx4-f22(xd4)),label= r"$|f'_{vierpunkt}-f'_{analytisch}|$")
+ax1.set(xlabel=r'$x$', ylabel= r"$f'(x)$")
+ax1.legend(loc="best")
+
+#ax2.plot(xd4, np.abs(dfdx4-f22(xd4)))
+ax2.plot(xd4, np.abs(dfdx4-dfdx2))
+ax2.set(xlabel=r'$x$', ylabel= r"$|f'_{vierpunkt}-f'_{zweipunkt}|$")
+
+print()
+
+plt.savefig('build/A1_d_x.pdf')
 plt.clf()
