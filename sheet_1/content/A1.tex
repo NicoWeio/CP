@@ -1,3 +1,59 @@
+\FloatBarrier
 \section{Aufgabe 1}
 \label{sec:A1}
-\includegraphics{code/build/plot.pdf}
+\subsection{a)}
+\begin{figure}
+    \centering
+    \includegraphics{code/build/plot.pdf}
+    \caption{Die erste Ableitung an $x=1,5$ in Abhängigkeit von der Schrittweite $h$ (halb-logarithmisch).
+    Die kleinsten $h$ sind nicht verwendbar, da dort die Werte $x$ und $x+h$ nicht unterscheidbar sind.
+    Die geringste Abweichung von dem analytischen Wert hat $h=0,01$ (orange).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_a_x.pdf}
+    \caption{Die Abweichung der ersten Ableitung mit $h=0,01$. Die Abweichungen sind proportinal zu $cos^2(x)$.
+    Das heißt die Abweichungen sind größer je steiler die Steigungen sind.}
+\end{figure}
+\FloatBarrier
+\FloatBarrier
+\subsection{b)}
+
+\begin{equation}
+    f''_{zweipunkt}= f'_{zweipunkt}( x+h,h_{f'}) - f'_{zweipunkt}( x-h,h_{f'}) / (2h)
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_b_h.pdf}
+    \caption{Die zweite Ableitung an $x=1,5$ mit $h_{f'}=0,01$ in Abhängigkeit von der Schrittweite $h$ (halb-logarithmisch).
+    Die kleinsten $h$ sind nicht verwendbar, da dort die Werte $x$ und $x+h$ nicht unterscheidbar sind.
+    Die geringste Abweichung von dem analytischen Wert hat $h=0,01$ (orange).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_b_x.pdf}
+    \caption{Die Abweichung der zweiten Ableitung mit $h=0,01$, $h_{f'}=0,01$. 
+    Im Gegensatz zu den Abweichungen der ersten Ableitung ist kein Muster zu erkennen.}
+\end{figure}
+\FloatBarrier
+\FloatBarrier
+
+\subsection{c)}
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_c_h.pdf}
+    \caption{Die erste Ableitung an $x=1,5$ mit in Abhängigkeit von der Schrittweite $h$ (halb-logarithmisch).
+    Die geringste Abweichung von dem analytischen Wert hat $h=0,01$ (orange).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{code/build/A1_c_x.pdf}
+    \caption{Die Abweichung der ersten Ableitung mit $h=0,01$. 
+    Im Gegensatz zu den Abweichungen der mit dem Zweipunktverfahren ist kein Muster zu erkennen.
+    Die Abweichungen sind um $10^1$ kleiner.}
+\end{figure}
+\FloatBarrier
