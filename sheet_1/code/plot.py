@@ -87,10 +87,12 @@ plt.clf()
 
 #d)#######################################################################################
 def f2(x):
-    if x >= 0:
-        return 2 * math.floor(1/np.pi) + np.sin(x % np.pi)
+    if x % np.pi == 0 :
+       return NaN
+    elif x >= 0:
+        return   np.sin(x % np.pi)
     else :
-        return 2 * math.floor(1/np.pi) - np.sin(x % np.pi)
+        return - np.sin(x % np.pi)
 #def f2(x):
 #    if x >= 0:
 #        return  + np.sin(x % np.pi)
