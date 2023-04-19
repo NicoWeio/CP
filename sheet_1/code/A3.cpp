@@ -1,46 +1,102 @@
+#include "integrate.h"
 #include <iostream>
 #include <fstream>
-#include <functional>
 #include <math.h>
 
-double f2(double x) {
-    // TODO: Richtige Funktion(en) verwenden
+
+double f1(double x){
+    return exp(-x)/x;
+}
+
+double f2(double x){
     return x*sin(1/x);
 }
 
-double trapezregel(double (*f)(double), double a, double b, double h) {
-    double sum = 0;
-    sum += f(a) / 2;
-    for (double i = a + h; i < (b - h); i += h) {
-        sum += f(i);
+// Ich habe es leider nicht geschafft die drei unten stehenden Funktionen zu einer zusammenzufassen mit einem
+// zusätzlichen Argument: Zeiger auf Funktion (trapezregel, mittelpunkt, simpson)
+// da diese funktionen selbst bereits als argument einen zeiger auf eine funktion besitzen
+
+void integrate_trapez(double (*f)(double), double a, double b, std::string path_output, double eps){
+    std::ofstream myfile(path_output);
+
+    double err = 1.0;
+    double h = abs(b-a)/2;
+
+    double I;
+    double I_old;
+    
+    I = trapezregel(f1, a, b, h);
+    while(err>eps){
+        myfile << I << std::endl;
+        h = h/2;
+        I_old = I;
+        I = trapezregel(f1, a, b, h);
+
+        err = abs((I-I_old)/I_old);
     }
-    sum += f(b) / 2;
-    return sum * h;
+    myfile.close();
 }
 
-double mittelpunktsregel(double (*f)(double), double a, double b, double h) {
-    double sum = 0;
-    for (double i = (a + h / 2); i < (b - h / 2); i += h) {
-        sum += f(i);
+void integrate_mittelpunkt(double (*f)(double), double a, double b, std::string path_output, double eps){
+    std::ofstream myfile(path_output);
+
+    double err = 1.0;
+    double h = abs(b-a)/2;
+
+
+    double I;
+    double I_old;
+    
+    I = mittelpunktsregel(f1, a, b, h);
+    while(err>eps){
+        myfile << I << std::endl;
+        h = h/2;
+        I_old = I;
+        I = mittelpunktsregel(f1, a, b, h);
+
+        err = abs((I-I_old)/I_old);
     }
-    return sum * h;
+    myfile.close();
 }
 
-double simpsonregel(double (*f)(double), double a, double b, double h) {
-    double sum = 0;
-    sum += f(a) + f(b);
-    for (double i = a + h; i < (b - h); i += h) {
-        sum += 2 * f(i);
+void integrate_simpson(double (*f)(double), double a, double b, std::string path_output, double eps){
+    std::ofstream myfile(path_output);
+
+    double err = 1.0;
+    double h = abs(b-a)/2;
+
+
+    double I;
+    double I_old;
+    
+    I = simpsonregel(f1, a, b, h);
+    while(err>eps){
+        myfile << I << std::endl;
+        h = h/2;
+        I_old = I;
+        I = simpsonregel(f1, a, b, h);
+
+        err = abs((I-I_old)/I_old);
     }
-    for (double i = a + h / 2; i < (b - h / 2); i += h) {
-        sum += 4 * f(i);
-    }
-    return sum * h / 6;
+    myfile.close();
 }
+
 
 int main() {
-    std::cout << trapezregel(f2, 0.1, 1, 0.00000001) << std::endl;
-    std::cout << mittelpunktsregel(f2, 0.1, 1, 0.00000001) << std::endl;
-    std::cout << simpsonregel(f2, 0.1, 1, 0.00000001) << std::endl;
+    const double eps = pow(10,-4);
+    const double I1_exact = 0.219384;
+    const double I2_exact =  0.378530;
+
+    // a)
+    integrate_trapez(f1, 1, 100, "build/I1_trapez.csv", eps);
+    integrate_mittelpunkt(f1, 1, 100, "build/I1_mittelpunkt.csv", eps);
+    integrate_simpson(f1, 1, 100, "build/I1_simpson.csv", eps);
+
+
+    // b)
+    //integrate_trapez(f2, 0, 1, "build/I2_trapez.csv", eps);
+    //integrate_mittelpunkt(f2, 0, 1, "build/I2_mittelpunkt.csv", eps);
+    //integrate_simpson(f2, 0, 1, "build/I2_simpson.csv", eps);
+
     return 0;
 }
