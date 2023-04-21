@@ -1,3 +1,20 @@
 \section{Aufgabe 3}
 \label{sec:A3}
+\textbf{Algorithmus:}
+\begin{itemize}
+    \item Startwert: $N=2$ Integrationsintervalle bzw. mit Intervallbreite $h = \frac{b-a}{N} = \frac{b-a}{2}$
+    \item berechne das Integral mit Trapez/Mittelpunkts/Simpsonregel
+    \item halbiere $h$ in jeder Iteration
+    \item Abbruchkriterium: das berechnete Integral weicht weniger als $\epsilon=10^{-4}$ vom vorherigen Wert ab
+\end{itemize}
 
+Für jedes $h$ befinden sich die berechneten Integralwerte $I$ in den csv-Dateien (z.B. I1\_trapez.csv).
+\\
+\\
+\\
+\textbf{Probleme} bei der Integration der zweiten Funktion:
+\begin{itemize}
+    \item NaNs treten auf oder die Integrationsmethode konvergiert nicht
+    \item Singularität im Sinus $\sin(1/x)$ führt zu Problemen, da nicht definiert
+    \item zudem stark oszillierend um $x=0$
+\end{itemize}
