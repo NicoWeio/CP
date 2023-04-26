@@ -3,6 +3,8 @@
 #include "vector_functions.h"
 #include <fstream>
 #include <cstdlib> //for exit(1) to catch errors
+#include <string>
+#include <algorithm>
 
 // calc acceleration vector a
 std::vector<double> get_a(const std::vector<double>& r1, const std::vector<double>& r2, const double M){
@@ -27,6 +29,7 @@ std::vector<double> get_v(const std::vector<double>& v_old, const std::vector<do
 
 // calc space vector r
 std::vector<double> get_r(const std::vector<double>& r_old, const std::vector<double>& v, const double h){
+    // r + v*h
     return vec_add(r_old, vec_scalar(v, h));
 }
 
@@ -47,13 +50,21 @@ void euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v
 
 
     // open csv files to save the space vectors r1, r2
-    std::ofstream file_r1("build/euler_r1.csv"); 
-    std::ofstream file_r2("build/euler_r2.csv");
+    // use stepsize h in filename
+    std::string h_string = std::to_string(h);
+    std::replace(h_string.begin(), h_string.end(), '.', '_');
 
+    std::string path_r1 = std::string("build/euler_r1_h") + h_string + std::string(".csv");
+    std::string path_r2 = std::string("build/euler_r2_h") + h_string + std::string(".csv");
+
+    std::ofstream file_r1(path_r1);
+    std::ofstream file_r2(path_r2);
+
+    // algorithm
     for(int i = 1; i*h<T_max; i++){ //t = i*h, i=1,2,..
         //m1
         a1_old = a1;
-        a1 = get_a(r1, r2, m2); // update a
+        a1 = get_a(r1, r2, m2); //update acceleration a
         
         v1_old = v1;
         v1 = get_v(v1_old, a1, h); //calc new velocity
@@ -65,7 +76,7 @@ void euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v
 
         //m2
         a2_old = a2;
-        a2 = get_a(r2, r1_old, m1); // update acceleration a
+        a2 = get_a(r2, r1_old, m1); //update acceleration a
         
         v2_old = v2;
         v2 = get_v(v2_old, a2, h); //calc new velocity
@@ -82,7 +93,7 @@ void euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v
 }
 
 // Verlet algorithm
-void verlet(std::vector<double> r1, std::vector<double> r2, double m1, double m2, double h, double T_max){
+void verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> v1, std::vector<double> v2, double m1, double m2, double h, double T_max){
     // var m1
     std::vector<double> r1_old{0.0, 0.0}; // r_n
     std::vector<double> r1_oold{0.0, 0.0}; // r_n-1
@@ -97,11 +108,23 @@ void verlet(std::vector<double> r1, std::vector<double> r2, double m1, double m2
     std::vector<double> a2{0.0, 0.0};
     std::vector<double> a2_old{0.0, 0.0}; 
 
+    // calc initial value for r_-1
+    // r_-1 = r_0 - v_0*h + 0.5*a_0*h^2
+    r1_old = vec_add(vec_sub(r1, vec_scalar(v1,h)), vec_scalar(get_a(r1, r2, m2), 0.5*h*h));
+    r2_old = vec_add(vec_sub(r2, vec_scalar(v2,h)), vec_scalar(get_a(r2, r1, m1), 0.5*h*h));
 
     // open csv files to save the space vectors r1, r2
-    std::ofstream file_r1("build/verlet_r1.csv"); 
-    std::ofstream file_r2("build/verlet_r2.csv");
+    // use stepsize h in filename
+    std::string h_string = std::to_string(h);
+    std::replace(h_string.begin(), h_string.end(), '.', '_');
 
+    std::string path_r1 = std::string("build/verlet_r1_h") + h_string + std::string(".csv");
+    std::string path_r2 = std::string("build/verlet_r2_h") + h_string + std::string(".csv");
+
+    std::ofstream file_r1(path_r1);
+    std::ofstream file_r2(path_r2);
+
+    // algorithm
     for(int i = 1; i*h<T_max; i++){ //t = i*h, i=1,2,..
         //m1
         a1_old = a1;
@@ -117,7 +140,7 @@ void verlet(std::vector<double> r1, std::vector<double> r2, double m1, double m2
 
         //m2
         a2_old = a2;
-        a2 = get_a(r2, r1, m1); // update a
+        a2 = get_a(r2, r1_old, m1); // update a
 
         r2_oold = r2_old;
         r2_old = r2;
@@ -146,14 +169,17 @@ int main(){
 
     // Var time
     // t = i*h = 1*h, 2*h, ..., T_max
-    const double h = 0.01;
     const double T_max = 100.0;
 
     // Euler algorithm
-    euler(r1, r2, v1, v2, m1, m2, h, T_max);
+    euler(r1, r2, v1, v2, m1, m2, 1.0, T_max);
+    euler(r1, r2, v1, v2, m1, m2, 0.1, T_max);
+    euler(r1, r2, v1, v2, m1, m2, 0.01, T_max);
 
     // Verlet algorithm
-    // verlet(r1, r2, m1, m2, g, T_max);
+    verlet(r1, r2, v1, v2, m1, m2, 1.0, T_max);
+    verlet(r1, r2, v1, v2, m1, m2, 0.1, T_max);
+    verlet(r1, r2, v1, v2, m1, m2, 0.01, T_max);
 
 
     return 0;
