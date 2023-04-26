@@ -7,7 +7,7 @@
 
 // print vector of any type
 template <typename T>
-void vec_print_vector(const std::vector<T>& vec) {
+void vec_print(const std::vector<T>& vec) {
     std::cout << "Vector elements: ";
     for (const auto& elem : vec) {
         std::cout << elem << " ";
