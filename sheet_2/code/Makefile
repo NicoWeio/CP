@@ -12,10 +12,6 @@ build/A2: A2.cpp | build
 	g++ -o build/A2 A2.cpp
 	./build/A2
 
-build/A3: A3.cpp | build
-	g++ -o build/A3 A3.cpp
-	./build/A3
-
 build:
 	mkdir -p build
 
