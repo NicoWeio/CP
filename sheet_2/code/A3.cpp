@@ -5,6 +5,7 @@
 #include <cstdlib> //for exit(1) to catch errors
 #include <string>
 #include <algorithm>
+#include <chrono>
 
 // calc acceleration vector a
 std::vector<double> get_a(const std::vector<double>& r1, const std::vector<double>& r2, const double M){
@@ -174,13 +175,24 @@ int main(){
     // Euler algorithm
     euler(r1, r2, v1, v2, m1, m2, 1.0, T_max);
     euler(r1, r2, v1, v2, m1, m2, 0.1, T_max);
+
+    // time measurement for h=0.01
+    auto start_euler = std::chrono::high_resolution_clock::now();
     euler(r1, r2, v1, v2, m1, m2, 0.01, T_max);
+    auto end_euler = std::chrono::high_resolution_clock::now();
+    auto duration_euler = std::chrono::duration_cast<std::chrono::microseconds>(end_euler - start_euler);
+    std::cout << "Euler algorithm duration: " << duration_euler.count() << " ms" << std::endl;
+    
 
     // Verlet algorithm
     verlet(r1, r2, v1, v2, m1, m2, 1.0, T_max);
     verlet(r1, r2, v1, v2, m1, m2, 0.1, T_max);
+    // time measurement for h=0.01
+    auto start_verlet = std::chrono::high_resolution_clock::now();
     verlet(r1, r2, v1, v2, m1, m2, 0.01, T_max);
-
+    auto end_verlet = std::chrono::high_resolution_clock::now();
+    auto duration_verlet = std::chrono::duration_cast<std::chrono::microseconds>(end_verlet - start_verlet);
+    std::cout << "Verlet algorithm duration: " << duration_verlet.count() << " ms" << std::endl;
 
     return 0;
 }
