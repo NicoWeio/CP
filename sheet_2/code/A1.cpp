@@ -35,9 +35,19 @@ int main() {
     Eigen::Vector3d y(0,0,0);
     Eigen::Vector3d yn;
     ofstream File("build/A1.csv");
+<<<<<<< HEAD
     for(double i=0; yn(0)< 2; i+=h){
     yn=RungeKutta(y, h);
     File << i*h << "," << y(0)<< ","<< yn(1)<< "," << yn(2)<< endl;
+||||||| 4d844d4
+    for(double i=0; i< 1000; i+=h){
+    yn=RungeKutter(y, h);
+    File << i*h << "," << yn(0)<< ","<< yn(1)<< "," << yn(2)<< endl;
+=======
+    for(double i=0; i< 1000; i+=h){
+    yn=RungeKutta(y, h);
+    File << i*h << "," << yn(0)<< ","<< yn(1)<< "," << yn(2)<< endl;
+>>>>>>> origin/HEAD
     y = yn;
     }
     File.close();
