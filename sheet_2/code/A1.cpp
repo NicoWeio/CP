@@ -20,7 +20,7 @@ Eigen::Vector3d df(Eigen::Vector3d y){
     return dy;
 }
 
-Eigen::Vector3d RungeKutter(Eigen::Vector3d y0, double h){
+Eigen::Vector3d RungeKutta(Eigen::Vector3d y0, double h){
     Eigen::Vector3d y = y0;
     Eigen::Vector3d k1= df(y);
     Eigen::Vector3d k2 = df ( y + h/2*k1);
@@ -36,7 +36,7 @@ int main() {
     Eigen::Vector3d yn;
     ofstream File("build/A1.csv");
     for(double i=0; i< 1000; i+=h){
-    yn=RungeKutter(y, h);
+    yn=RungeKutta(y, h);
     File << i*h << "," << yn(0)<< ","<< yn(1)<< "," << yn(2)<< endl;
     y = yn;
     }
