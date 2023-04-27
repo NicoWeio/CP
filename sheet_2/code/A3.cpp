@@ -36,7 +36,8 @@ std::vector<double> get_r(const std::vector<double>& r_old, const std::vector<do
 
 // Euler algorithm
 //results (space vectors r1, r2) in csv file
-void euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v1, std::vector<double> v2, double m1, double m2, double h, double T_max){
+// return last r1, r2, v1, v2 vector as tuple
+std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v1, std::vector<double> v2, double m1, double m2, double h, double T_max){
     // var m1
     std::vector<double> r1_old{0.0, 0.0};
     std::vector<double> v1_old{0.0, 0.0};
@@ -91,10 +92,12 @@ void euler(std::vector<double> r1, std::vector<double> r2, std::vector<double> v
     // close csv files
     file_r1.close();
     file_r2.close();
+
+    return std::make_tuple(r1, r2, v1, v2);
 }
 
 // Verlet algorithm
-void verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> v1, std::vector<double> v2, double m1, double m2, double h, double T_max){
+std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> v1, std::vector<double> v2, double m1, double m2, double h, double T_max){
     // var m1
     std::vector<double> r1_old{0.0, 0.0}; // r_n
     std::vector<double> r1_oold{0.0, 0.0}; // r_n-1
@@ -130,6 +133,9 @@ void verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> 
         //m1
         a1_old = a1;
         a1 = get_a(r1, r2, m2); // update a
+        if(h < 0){
+            a1 = vec_scalar(a1, -1); // flip sign of acceleration if h is negative
+        }
 
         r1_oold = r1_old;
         r1_old = r1;
@@ -142,6 +148,9 @@ void verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> 
         //m2
         a2_old = a2;
         a2 = get_a(r2, r1_old, m1); // update a
+        if(h < 0){
+            a2 = vec_scalar(a2, -1); // flip sign of acceleration if h is negative
+        }
 
         r2_oold = r2_old;
         r2_old = r2;
@@ -155,6 +164,8 @@ void verlet(std::vector<double> r1, std::vector<double> r2, std::vector<double> 
     // close csv files
     file_r1.close();
     file_r2.close();
+
+    return std::make_tuple(r1, r2, v1, v2);
 }
 
 int main(){
@@ -172,27 +183,61 @@ int main(){
     // t = i*h = 1*h, 2*h, ..., T_max
     const double T_max = 100.0;
 
-    // Euler algorithm
+    // Euler algorithm >>>
+    // a)
     euler(r1, r2, v1, v2, m1, m2, 1.0, T_max);
     euler(r1, r2, v1, v2, m1, m2, 0.1, T_max);
 
-    // time measurement for h=0.01
+    // b) time measurement for h=0.01
     auto start_euler = std::chrono::high_resolution_clock::now();
     euler(r1, r2, v1, v2, m1, m2, 0.01, T_max);
     auto end_euler = std::chrono::high_resolution_clock::now();
-    auto duration_euler = std::chrono::duration_cast<std::chrono::microseconds>(end_euler - start_euler);
+    auto duration_euler = std::chrono::duration_cast<std::chrono::milliseconds>(end_euler - start_euler);
     std::cout << "Euler algorithm duration: " << duration_euler.count() << " ms" << std::endl;
-    
 
-    // Verlet algorithm
+    // c) h=0.05 and back with h=-0.05
+    // save last r1, r2, v1, v2 vector
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> result_euler = euler(r1, r2, v1, v2, m1, m2, 0.05, T_max);
+    
+    std::vector<double> r1_new_euler = std::get<0>(result_euler);
+    std::vector<double> r2_new_euler = std::get<1>(result_euler);
+    std::vector<double> v1_new_euler = std::get<2>(result_euler);
+    std::vector<double> v2_new_euler = std::get<3>(result_euler);
+    
+    // use the latest positions/velocities and use now h -> -h
+    // doesnt work
+    //euler(r1_new_euler, r2_new_euler, v1_new_euler, v2_new_euler, m1, m2, -0.05, -T_max);
+
+    // <<<
+
+
+
+    // Verlet algorithm >>>
     verlet(r1, r2, v1, v2, m1, m2, 1.0, T_max);
     verlet(r1, r2, v1, v2, m1, m2, 0.1, T_max);
+
     // time measurement for h=0.01
     auto start_verlet = std::chrono::high_resolution_clock::now();
     verlet(r1, r2, v1, v2, m1, m2, 0.01, T_max);
     auto end_verlet = std::chrono::high_resolution_clock::now();
-    auto duration_verlet = std::chrono::duration_cast<std::chrono::microseconds>(end_verlet - start_verlet);
+    auto duration_verlet = std::chrono::duration_cast<std::chrono::milliseconds>(end_verlet - start_verlet);
     std::cout << "Verlet algorithm duration: " << duration_verlet.count() << " ms" << std::endl;
+    
+    // c) h=0.05 and back with h=-0.05
+    // save last r1, r2, v1, v2 vector
+    std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> result_verlet = verlet(r1, r2, v1, v2, m1, m2, 0.05, T_max);
+    
+    std::vector<double> r1_new_verlet = std::get<0>(result_verlet);
+    std::vector<double> r2_new_verlet = std::get<1>(result_verlet);
+    std::vector<double> v1_new_verlet = std::get<2>(result_verlet);
+    std::vector<double> v2_new_verlet = std::get<3>(result_verlet);
+    
+    // use the latest positions/velocities and use now h -> -h, going back in time T_max -> -T_max
+    // doesent work
+    // verlet(r1_new_verlet, r2_new_verlet, v1_new_verlet, v2_new_verlet, m1, m2, -0.05, T_max);
+
+    // <<<
+
 
     return 0;
 }
