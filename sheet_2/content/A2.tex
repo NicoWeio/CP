@@ -1,2 +1,139 @@
 \section{Aufgabe 2}
 \label{sec:A2}
+
+\subsection{Integration Newtonscher Bewegungsgleichungen}
+Newtonsche Bewegungsgleichungen
+\begin{equation}
+    m \ddot{\vec{r}} = \vec{F}(\vec{r}, \dot{\vec{r}}, t)
+\end{equation}
+stellen eine DGL 2. Ordnung dar, wobei $\vec{F}(\vec{r}, \dot{\vec{r}}, t)$ eine beliebige Kraft darstellt.
+Die Kraft ist gleich der Beschleunigung $\ddot{\vec{r}}$, multipliziert mit der beschleunigten Masse $m$.
+Allgemein hängt die Kraft von der Zeit, Geschwindigkeit und dem Ort der bewegten Masse ab.
+\\
+Jede DGL höherer Ordnung kann zu einem DGL-System 1. Ordnung reduziert werden.
+Beispielhaft kann der Impuls $\vec{p}$ (Alternativ $\vec{v}$) eingeführt werden und es folgt das DGL-System:
+\begin{align}
+    \dot{\vec{r}} &= \frac{\dot{\vec{p}}}{m} \\
+    \dot{\vec{p}} &= \vec{F}(\vec{r}, \dot{\vec{r}}, t)
+\end{align}
+\\
+Das Zweikörperproblem wird hier vereinfacht (nicht relativistisch) durch das Newtonsche Gesetz der Gravitation
+\begin{equation}
+   \vec{F}(\vec{r}, \dot{\vec{r}}, t) = - G \frac{m_1 m_2}{|\vec{r_1} - \vec{r_2}|^3} (\vec{r_1} - \vec{r_2})
+\end{equation}
+beschrieben.
+Im folgenden werden natürliche Einheiten verwendet.
+Für die Gravitationskonstante folgt $G = 1$.
+
+\subsection{Euler-Algorithmus}
+Der Euler-Algorithmus stellt ein Verfahren zur Lösung von DGLs 1. Ordnung dar.
+Wie in den meisten nummerischen Verfahren wird im ersten Schritt die Zeit diskretisiert, wobei die Breite/Länge des Zeitintervalls durch die Schrittweite $h$ beschrieben wird.
+Betrachtet man die Ableitung einer allgemeinen Funktion
+\begin{equation*}
+    \dot{\vec{y}} = \frac{\vec{y}_{n+1} - \vec{y}_n}{h} \, ,
+\end{equation*}
+folgt sofort für eine DGL 1. Ordnung
+\begin{align*}
+    \frac{\vec{y}_{n+1} - \vec{y}_n}{h} &= \vec{f}(t_n, \vec{y}_n) \\
+    \Rightarrow \vec{y}_{n+1} &= \vec{y}_{n} + h \cdot f(t_n, \vec{y}_{n})
+\end{align*}
+mit einer allgemeinen Funktion $f(t_n, \vec{y}_{n})$, die nur vom Ort $\vec{y}_{n}$ und der Zeit $t_n$ abhängen darf.
+Die Newtonsche Bewegungsgleichung für ein Zweikörperproblem in natürlichen Einheiten lautet
+\begin{equation}
+    \vec{a} = -\frac{1}{m_i} \frac{m_1 m_2}{|\vec{r_1} - \vec{r_2}|^3} (\vec{r_1} - \vec{r_2})
+\end{equation}
+,wobei $m_i = m_1, m_2$ jeweils die Masse darstellt, dessen Beschleunigung bestimmt werden soll.
+Zu beachten ist, dass bei der Berechnung der Beschleunigung für die Masse $m_2$, die Vektoren $r_2$ und $r_1$ tauschen.
+Die Geschwindigkeit und der Ort können über die Vorschriften
+\begin{align}
+    \vec{v}_{n+1} &= \vec{v}_n + \vec{a}_n \cdot h \\
+    \vec{r}_{n+1} &= \vec{r}_n + \vec{v}_n \cdot h
+\end{align}
+für jeden Zeitschritt $n\cdot h$ bestimmt werden.
+Als Startwert werden die gegebenen Ortsvektoren und Geschwindigkeitsvektoren für die jeweilige Massen $m_1: \vec{r}_1, \vec{v}_1$ bzw. $m_2: \vec{r}_2, \vec{v}_2$ verwendet:
+\begin{equation}
+    \vec{r}_1 = \begin{pmatrix} 0.0\\ 1.0\end{pmatrix}
+    \quad
+    \vec{v}_1 = \begin{pmatrix} 0.8\\ 0.0\end{pmatrix}
+    \quad
+    \vec{r}_2 = \begin{pmatrix} 0.0\\ -0.5\end{pmatrix}
+    \quad
+    \vec{v}_2 = \begin{pmatrix} -0.4\\ 0.0\end{pmatrix}
+\end{equation}
+\\
+Der Code befindet sich in der Datei \textit{A2.cpp}, wobei die selbst definierte Headerdatei \textit{vector\_functions.h} mit nützlichen Vektorrechenoperationen importiert wird.
+Die Trajektorien, bzw. $(x, y)$-Koordinaten werden für jede betrachtete Schrittweite $h$ in csv-Dateien gespeichert und mit dem Python-Script \textit{A2\_plot.py} ausgewertet.
+Zu beachten ist, dass sich die Bewegung in einer Ebene abspielt und somit $z=\text{const.}$ vernachlässigt werden kann.
+Die Bewegungsgleichungen werden bis zur Zeit $T=100$ integriert.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/euler_r1_h1_000000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=1.0$.
+    Die Schrittweite ist offensichtlich nicht geeignet und führt zu einem unerwarteten, nicht stabilen Verhalten.
+    }
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/euler_r1_h0_100000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=0.1$.
+    }
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/euler_r1_h0_010000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=0.01$.
+    }
+\end{figure}
+\FloatBarrier
+
+\subsection{Verlet-Algorithmus}
+Der Verlet-Algorithmus folgt aus einer Taylorentwicklung der DGL und ist durch die Vorschriften
+\begin{align}
+    \vec{r}_{n+1} &= 2 \vec{r}_n - \vec{r}_{n-1} + \vec{a}_n \cdot h^2 \\
+    \vec{v}_{n+1} &= (\vec{r}_{n+1} - \vec{r}_{n-1}) \cdot \frac{1}{2h} 
+\end{align}
+definiert.
+Verglichen zum Euler-Algorithmus ist das Verfahren schneller und die Berechnung des Ortes $\vec{r}_{n+1}$ ist unabhängig von der Geschwindigkeit $\vec{v}$.
+Es wird ein weiterer Anfangswert benötigt $r_{-1}$, der mittels
+\begin{equation}
+    \vec{r}_{-1} = \vec{r}_0 - \vec{v}_0 \cdot h + \frac{1}{2} \vec{a}_0 \cdot h^2
+\end{equation}
+abgeschätzt werden kann.
+Alternativ kann der äquivalente Geschwindigkeit-Verlet-Algorithmus verwendet werden.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/verlet_r1_h1_000000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=1.0$.
+    Die Schrittweite ist offensichtlich nicht geeignet und führt zu einem unerwarteten, nicht stabilen Verhalten.
+    }
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/verlet_r1_h0_100000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=0.1$.
+    }
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/verlet_r1_h0_010000.csv}
+    \caption{Trajektorien beider Massen $m_1$ und $m_2$ für die Schrittweite $h=0.01$.
+    }
+\end{figure}
+\FloatBarrier
+
+\subsection{Laufzeitsmessung}
+Die Laufzeit der Algorithmen wird für die Schrittweite $h=0.01$ mithilfe der \textit{<chrono>} Bibliothek gemessen.
+Zu beachten ist, dass die Laufzeit stark reduziert werden kann, wenn nicht jeder Datenpunkt in der csv-Datei gespeichert wird.
+Das schreiben in eine CSV-Datei ist eine aufwendige Operation.
+\\
+\\
+
+Euler-Algorithmus: $\qty{75}{\milli\second}$
+\\
+Verlet-Algorithmus: $\qty{58}{\milli\second}$
+\\
+\\
+Verwendete Hardware: AMD 5600g, 6x3900 GHz
+
+\subsection{Rückwärts in der Zeit}
+Eine Zeitumkehr mit dem Euler-Algorithmus ist nicht möglich.
