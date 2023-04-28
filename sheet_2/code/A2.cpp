@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
+#include <tuple>
 
 // calc acceleration vector a
 std::vector<double> get_a(const std::vector<double>& r1, const std::vector<double>& r2, const double M){
