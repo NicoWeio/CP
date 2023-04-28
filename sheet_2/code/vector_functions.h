@@ -43,7 +43,6 @@ double vec_abs(const std::vector<double>& a){
     }
     return sqrt(value);
 }
-#endif
 
 // vector times scalar
 std::vector<double> vec_scalar(const std::vector<double>& vec, const double a){
@@ -53,3 +52,5 @@ std::vector<double> vec_scalar(const std::vector<double>& vec, const double a){
     }
     return result;
 }
+
+#endif // VECTOR_FUNCTIONS
