@@ -11,7 +11,7 @@
 std::vector<double> get_a(const std::vector<double>& r1, const std::vector<double>& r2, const double M){
     // a = F(r1, r2)/m
     std::vector<double> r_dif = vec_sub(r1, r2);
-    
+
     //check if r1-r2 == 0
     if(vec_abs(r_dif)==0){
         std::cerr << "Division by zero: r1 and r2 must be different!";
@@ -67,10 +67,10 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::v
         //m1
         a1_old = a1;
         a1 = get_a(r1, r2, m2); //update acceleration a
-        
+
         v1_old = v1;
         v1 = get_v(v1_old, a1, h); //calc new velocity
-        
+
         r1_old = r1;
         r1 = get_r(r1_old, v1, h); //calc new position
 
@@ -79,14 +79,14 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::v
         //m2
         a2_old = a2;
         a2 = get_a(r2, r1_old, m1); //update acceleration a
-        
+
         v2_old = v2;
         v2 = get_v(v2_old, a2, h); //calc new velocity
-        
+
         r2_old = r2;
         r2 = get_r(r2_old, v2, h); //calc new position
-        
-        file_r2 << r2[0] << ", " << r2[1] << std::endl; //write to csv        
+
+        file_r2 << r2[0] << ", " << r2[1] << std::endl; //write to csv
     }
 
     // close csv files
@@ -110,7 +110,7 @@ std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::v
     std::vector<double> r2_oold{0.0, 0.0};
 
     std::vector<double> a2{0.0, 0.0};
-    std::vector<double> a2_old{0.0, 0.0}; 
+    std::vector<double> a2_old{0.0, 0.0};
 
     // calc initial value for r_-1
     // r_-1 = r_0 - v_0*h + 0.5*a_0*h^2
@@ -198,12 +198,12 @@ int main(){
     // c) h=0.05 and back with h=-0.05
     // save last r1, r2, v1, v2 vector
     std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> result_euler = euler(r1, r2, v1, v2, m1, m2, 0.05, T_max);
-    
+
     std::vector<double> r1_new_euler = std::get<0>(result_euler);
     std::vector<double> r2_new_euler = std::get<1>(result_euler);
     std::vector<double> v1_new_euler = std::get<2>(result_euler);
     std::vector<double> v2_new_euler = std::get<3>(result_euler);
-    
+
     // use the latest positions/velocities and use now h -> -h
     // doesnt work
     //euler(r1_new_euler, r2_new_euler, v1_new_euler, v2_new_euler, m1, m2, -0.05, -T_max);
@@ -222,16 +222,16 @@ int main(){
     auto end_verlet = std::chrono::high_resolution_clock::now();
     auto duration_verlet = std::chrono::duration_cast<std::chrono::milliseconds>(end_verlet - start_verlet);
     std::cout << "Verlet algorithm duration: " << duration_verlet.count() << " ms" << std::endl;
-    
+
     // c) h=0.05 and back with h=-0.05
     // save last r1, r2, v1, v2 vector
     std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>> result_verlet = verlet(r1, r2, v1, v2, m1, m2, 0.05, T_max);
-    
+
     std::vector<double> r1_new_verlet = std::get<0>(result_verlet);
     std::vector<double> r2_new_verlet = std::get<1>(result_verlet);
     std::vector<double> v1_new_verlet = std::get<2>(result_verlet);
     std::vector<double> v2_new_verlet = std::get<3>(result_verlet);
-    
+
     // use the latest positions/velocities and use now h -> -h, going back in time T_max -> -T_max
     // doesent work
     // verlet(r1_new_verlet, r2_new_verlet, v1_new_verlet, v2_new_verlet, m1, m2, -0.05, T_max);

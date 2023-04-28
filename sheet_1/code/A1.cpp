@@ -24,7 +24,7 @@ float f1(float x) {
 
 float f2(float x) {
     if (x >= 0) {
-        return 2 * floor(x/M_PI) - cos( fmod(x, M_PI)) +1;       
+        return 2 * floor(x/M_PI) - cos( fmod(x, M_PI)) +1;
     } else {
         return 2 * floor(x/M_PI) + cos( fmod(x, M_PI)) +1;
     }
@@ -99,4 +99,3 @@ ofstream File10("build/A1_d_x4.csv");
 
 return 0;
 }
-

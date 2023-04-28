@@ -18,7 +18,7 @@ void vec_print(const std::vector<T>& vec) {
 // vector addition
 std::vector<double> vec_add(const std::vector<double>& a, const std::vector<double>& b){
     std::vector<double> result(a.size());
-    
+
     for(int i = 0; i < a.size(); i++){
         result[i] = a[i] + b[i];
     }
@@ -28,7 +28,7 @@ std::vector<double> vec_add(const std::vector<double>& a, const std::vector<doub
 // vector subtraction
 std::vector<double> vec_sub(const std::vector<double>& a, const std::vector<double>& b){
     std::vector<double> result(a.size());
-    
+
     for(int i = 0; i < a.size(); i++){
         result[i] = a[i] - b[i];
     }
