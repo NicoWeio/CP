@@ -1,9 +1,9 @@
 #ifndef INTEGRATE_H
 #define INTEGRATE_H
 
-#include <iostream>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <math.h>
 
 double trapezregel(double (*f)(double), double a, double b, double h) {
@@ -26,11 +26,11 @@ double mittelpunktsregel(double (*f)(double), double a, double b, double h) {
 
 double simpsonregel(double (*f)(double), double a, double b, double h) {
     // check if N is even
-    int N = int((b-a)/h);
-    if(N%2 == 1){
+    int N = int((b - a) / h);
+    if (N % 2 == 1) {
         std::cerr << "N is not even! This can cause problems." << std::endl;
     }
-    
+
     double sum = 0;
     sum += f(a) + f(b);
     for (double i = a + h; i < (b - h); i += h) {
