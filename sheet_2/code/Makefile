@@ -1,18 +1,10 @@
-all: build/plot.pdf
+all: build/plot.pdf build/A1_r.pdf
 
-<<<<<<< HEAD
-# hier Python-Skripte:
-build/plot.pdf: plot.py build/A1 build/A2 build
+build/A1_r.pdf: plot.py build/A1 build/A2 | build
 	python plot.py
-||||||| 4d844d4
-# hier Python-Skripte:
-build/plot.pdf: plot.py build/A1 build/A2 build/A3 | build
-	python plot.py
-=======
 # here are the Python scripts:
 build/plot.pdf: A2_plot.py build/A2 | build
 	./build/A2 && python A2_plot.py
->>>>>>> origin/HEAD
 
 # here are the C++ programs:
 build/A1: A1.cpp | build
