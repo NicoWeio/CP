@@ -1,5 +1,7 @@
 #include <eigen3/Eigen/Dense>
+#include <fstream>
 #include <iostream>
+#include <random>
 #include <vector>
 
 using namespace std;
@@ -43,6 +45,10 @@ using namespace Eigen;
 // - For lists of data std::vector is used.
 // =================================================================================================
 
+// CONSTANTS
+double epsilon = 1;
+double sigma = 1;
+
 // ================================ Potential-class ================================================
 
 // Virtual class from which concrete potentials can be inherited
@@ -54,6 +60,7 @@ class Potential {
 };
 
 class PotentialLJ : public Potential {
+    // LJ = Lennard-Jones
   public:
     double V(double r2) const;    // Overwrites virtual function
     Vector2d F(Vector2d r) const; // Overwrites virtual function
@@ -61,11 +68,12 @@ class PotentialLJ : public Potential {
 
 // For the potential, the square of the vector length is sufficient, which saves a root calculation.
 double PotentialLJ::V(double r2) const {
-    /*TODO*/
+    return 4 * epsilon * (pow(sigma / r2, 12) - pow(sigma / r2, 6));
 }
 
 Vector2d PotentialLJ::F(Vector2d r) const {
-    /*TODO*/
+    // TODO: COPILOT ↓
+    return 24 * epsilon * (2 * pow(sigma, 12) / pow(r.norm(), 14) - pow(sigma, 6) / pow(r.norm(), 8)) * r;
 }
 
 // ------------------------------ End of Potential-class -------------------------------------------
@@ -126,7 +134,28 @@ Data::Data(uint n, uint numBins, double binSize)
 }
 
 void Data::save(const string &filenameSets, const string &filenameG, const string &filenameR) const {
-    /*TODO*/
+    ofstream myfile;
+
+    // save datasets
+    myfile.open(filenameSets);
+    for (const Dataset &set : datasets) {
+        myfile << set.t << "\t" << set.T << "\t" << set.Ekin << "\t" << set.Epot << "\t" << set.vS.x() << "\t" << set.vS.y() << endl;
+    }
+    myfile.close();
+
+    // save pair correlation function
+    myfile.open(filenameG);
+    for (int i = 0; i < g.size(); i++) {
+        myfile << rBin[i] << "\t" << g[i] << endl;
+    }
+    myfile.close();
+
+    // save final positions
+    myfile.open(filenameR);
+    for (int i = 0; i < r.size(); i++) {
+        myfile << r[i].x() << "\t" << r[i].y() << endl;
+    }
+    myfile.close();
 }
 
 // ------------------------------ End of Data-Structs ------------------------------------------
@@ -182,40 +211,115 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
       numBins(numBins),
       binSize(L / numBins) /*TODO*/
 {
-    /*TODO*/
+    cout << "MD init start" << endl;
+
+    mt19937 rnd;
+    uniform_real_distribution<double> dist(0, 1);
+    // double random_number = dist(rnd);
+
+    // NOTE: distance between particles: L / particlesPerRow = 2*n*sigma / n = 2*sigma
+    for (uint i = 0; i < particlesPerRow; i++) {
+        for (uint j = 0; j < particlesPerRow; j++) {
+            Vector2d r_ij = Vector2d(2 * i * sigma, 2 * j * sigma);
+            r.push_back(r_ij);
+            // v.push_back(Vector2d(0, 0));
+            Vector2d v_ij = Vector2d(dist(rnd), dist(rnd));
+            v.push_back(v_ij);
+        }
+    }
+    cout << "particles created" << endl;
+
+    // subtract mean velocity (vS) from all velocities
+    Vector2d vS = calcvS();
+    for (int i = 0; i < N; i++) {
+        v[i] -= vS;
+    }
+    cout << "mean velocity subtracted" << endl;
+
+    // Scale velocities to achieve desired temperature
+    // NOTE: T ~ Ekin ~ p^2 ~ v^2 → v ~ sqrt(T)
+    double T0 = calcT();
+    double scale = sqrt(T / T0);
+    for (int i = 0; i < N; i++) {
+        v[i] *= scale;
+    }
+    cout << "velocities scaled" << endl;
+
+    // centerParticles();
 }
 
 // Integration without data acquisition for pure equilibration
 void MD::equilibrate(const double dt, const unsigned int n) {
-    /*TODO*/
     vector<int> vec(10);
     for (int i : vec) {
         cout << i << "\t";
+
     }
 }
 
 Data MD::measure(const double dt, const unsigned int n) {
-    /*TODO*/
+    // double t, T, Ekin, Epot;
+    // Vector2d vS;
+
+    // TODO COPILOT
+    Data data(n, numBins, binSize);
+    return data;
 }
 
+// Particles are moved in box [0,L]x[0,L].
 void MD::centerParticles() {
-    /*TODO*/
+    // Ensure periodic boundary conditions ([0,L]x[0,L])
+    // If the particle is outside of box, move it to the other side
+    // NOTE: This does not handle the case where a particle is outside of the box by more than L.
+
+    for (int i = 0; i < N; i++) {
+        if (r[i].x() < 0) {
+            r[i].x() += L;
+        } else if (r[i].x() > L) {
+            r[i].x() -= L;
+        }
+
+        if (r[i].y() < 0) {
+            r[i].y() += L;
+        } else if (r[i].y() > L) {
+            r[i].y() -= L;
+        }
+    }
 }
 
 double MD::calcT() const {
-    /*TODO*/
+    double N_f = 3 * N - 3; // number of degrees of freedom
+
+    return 2 * calcEkin() / N_f; // TODO: epsilon, k_B?
 }
 
 double MD::calcEkin() const {
-    /*TODO*/
+    double Ekin = 0;
+    for (int i = 0; i < N; i++) {
+        Ekin += 0.5 * v[i].squaredNorm();
+    }
+    return Ekin;
 }
 
 double MD::calcEpot() const {
-    /*TODO*/
+    double Epot = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            Vector2d r_ij = calcDistanceVec(i, j);
+            Epot += potential.V(r_ij.squaredNorm());
+        }
+    }
+    return Epot;
 }
 
 Vector2d MD::calcvS() const {
-    /*TODO*/
+    // vS means Schwerpunktsgeschwindigkeit
+    Vector2d vS(0, 0);
+    for (int i = 0; i < N; i++) {
+        // NOTE: equal mass particles
+        vS += v[i];
+    }
+    return vS / N;
 }
 
 Dataset MD::calcDataset() const {
@@ -233,36 +337,40 @@ vector<Vector2d> MD::calcAcc(vector<double> &hist) const {
 // ------------------------------ End of MD-class ------------------------------------------
 
 int main(void) {
+    cout << "main start" << endl;
+
     PotentialLJ LJ;
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint partPerRow = /*TODO*/;
-    const uint N = /*TODO*/;
-    const double L = /*TODO*/;
-    const int numBins = /*TODO*/;
+    const uint particlesPerRow = 1; // TODO
+    const uint N = particlesPerRow * particlesPerRow;
+    const double L = 2 * particlesPerRow * sigma; // TODO
+    const int numBins = 1;                        // TODO
 
     // b) Equilibration test
     {
-        const double T = /*TODO*/;
-        const double dt = /*TODO*/;
-        const uint steps = /*TODO*/;
+        const double T = 1;   // T(0)
+        const double dt = 1;  // TODO
+        const uint steps = 1; // TODO
 
-        MD md(L, N, partPerRow, T, LJ, noThermo, numBins);
-        md.measure(dt, steps).save("b)set.dat", "b)g.dat", "b)r.dat");
+        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        cout << "MD init complete" << endl;
+        md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
+        cout << "MD measure complete" << endl;
     }
 
     // c) Pair correlation function
     string TstringVec[3] = {"0.01", "1", "100"};
     for (auto &Tstring : TstringVec) {
         const double T = stod(Tstring);
-        const double dt = /*TODO*/;
-        const uint equiSteps = /*TODO*/;
-        const uint steps = /*TODO*/;
+        const double dt = 1;      // TODO
+        const uint equiSteps = 1; // TODO
+        const uint steps = 1;     // TODO
 
-        MD md(L, N, partPerRow, T, LJ, noThermo, numBins);
+        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         md.equilibrate(dt, equiSteps);
-        md.measure(dt, steps).save("c)set" + Tstring + ".dat", "c)g" + Tstring + ".dat", "c)r" + Tstring + ".dat");
+        md.measure(dt, steps).save("build/c)set" + Tstring + ".tsv", "build/c)g" + Tstring + ".tsv", "build/c)r" + Tstring + ".tsv");
     }
 
     // d) Thermostat
