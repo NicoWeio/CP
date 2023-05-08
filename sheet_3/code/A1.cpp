@@ -72,8 +72,14 @@ double PotentialLJ::V(double r2) const {
 }
 
 Vector2d PotentialLJ::F(Vector2d r) const {
-    // TODO: COPILOT ↓
-    return 24 * epsilon * (2 * pow(sigma, 12) / pow(r.norm(), 14) - pow(sigma, 6) / pow(r.norm(), 8)) * r;
+    // COPILOT ↓
+    // return 24 * epsilon * (2 * pow(sigma, 12) / pow(r.norm(), 14) - pow(sigma, 6) / pow(r.norm(), 8)) * r;
+    // → siehe Kierfeld, S. 72
+    // return 48 * epsilon * (pow(sigma, 12) / pow(r.norm(), 14) - 0.5 * pow(sigma, 6) / pow(r.norm(), 8)) * r;
+    // return 24 * (-pow(r, -7) + 2 * pow(r, -13));
+
+    double K = 24 * (-pow(r.norm(), -7.) + 2 * pow(r.norm(), -13.));
+    return r.normalized() * K;
 }
 
 // ------------------------------ End of Potential-class -------------------------------------------
@@ -250,10 +256,13 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
 
 // Integration without data acquisition for pure equilibration
 void MD::equilibrate(const double dt, const unsigned int n) {
+    vector<double> stupidHist;
+
+    calcAcc(stupidHist);
+
     vector<int> vec(10);
     for (int i : vec) {
-        cout << i << "\t";
-
+        // cout << i << "\t";
     }
 }
 
@@ -271,6 +280,7 @@ void MD::centerParticles() {
     // Ensure periodic boundary conditions ([0,L]x[0,L])
     // If the particle is outside of box, move it to the other side
     // NOTE: This does not handle the case where a particle is outside of the box by more than L.
+    // TODO: Use modulo instead?
 
     for (int i = 0; i < N; i++) {
         if (r[i].x() < 0) {
@@ -327,11 +337,43 @@ Dataset MD::calcDataset() const {
 }
 
 Vector2d MD::calcDistanceVec(uint i, uint j) const {
-    /*TODO*/
+    // return r[i] - r[j];
+
+    const double r_cutoff = L / 2; // TODO move to constructor or something
+
+    // boundary conditions and cutoff
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            Vector2d r_ij = (r[i] - r[j]) + Vector2d(x * L, y * L);
+            if (r_ij.squaredNorm() < r_cutoff * r_cutoff) {
+                return r_ij;
+            }
+        }
+    }
+
+    return Vector2d(0, 0); // FIXME: suboptimal
 }
 
 vector<Vector2d> MD::calcAcc(vector<double> &hist) const {
-    /*TODO*/
+    vector<Vector2d> a(N, Vector2d(0, 0));
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < i; j++) { // NOTE: j < i, because F_ij = -F_ji
+            // cout << "i: " << i << ", j: " << j << endl;
+            Vector2d r_ij = calcDistanceVec(i, j);
+
+            // if r_ij is (0,0), then the particles are too far away from each other
+            if (r_ij.squaredNorm() == 0) {
+                continue;
+            }
+
+            Vector2d F_ij = potential.F(r_ij); // NOTE: F = m*a and m = 1
+            a[i] += F_ij;
+            a[j] -= F_ij;
+        }
+    }
+
+    return a;
 }
 
 // ------------------------------ End of MD-class ------------------------------------------
@@ -343,7 +385,7 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint particlesPerRow = 1; // TODO
+    const uint particlesPerRow = 3;
     const uint N = particlesPerRow * particlesPerRow;
     const double L = 2 * particlesPerRow * sigma; // TODO
     const int numBins = 1;                        // TODO
@@ -355,9 +397,9 @@ int main(void) {
         const uint steps = 1; // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        cout << "MD init complete" << endl;
+        cout << "++ MD init complete" << endl;
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
-        cout << "MD measure complete" << endl;
+        cout << "++ MD measure complete" << endl;
     }
 
     // c) Pair correlation function
@@ -369,7 +411,9 @@ int main(void) {
         const uint steps = 1;     // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        cout << "++ MD equilibrate start" << endl;
         md.equilibrate(dt, equiSteps);
+        cout << "++ MD equilibrate complete" << endl;
         md.measure(dt, steps).save("build/c)set" + Tstring + ".tsv", "build/c)g" + Tstring + ".tsv", "build/c)r" + Tstring + ".tsv");
     }
 
