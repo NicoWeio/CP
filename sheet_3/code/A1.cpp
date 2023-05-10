@@ -66,9 +66,10 @@ class PotentialLJ : public Potential {
     Vector2d F(Vector2d r) const; // Overwrites virtual function
 };
 
-// For the potential, the square of the vector length is sufficient, which saves a root calculation.
 double PotentialLJ::V(double r2) const {
-    return 4 * epsilon * (pow(sigma / r2, 12) - pow(sigma / r2, 6));
+    // For the potential, the square of the vector length is sufficient, which saves a root calculation.
+    double r2_6 = pow(sigma / r2, 6);
+    return 4 * epsilon * (r2_6 * r2_6 - r2_6);
 }
 
 Vector2d PotentialLJ::F(Vector2d r) const {
@@ -121,7 +122,7 @@ struct Dataset {
 // Data data(n) constructor; reserves memory and fills pair correlation function with 0s
 struct Data {
     vector<Dataset> datasets; // Time-resolved datasets.
-    vector<double> rBin, g;   // Averaged pair correlation function
+    vector<double> rBin, g;   // Averaged pair correlation function: g(rBin) (?)
     vector<Vector2d> r;       // snapshot of the final position
                               // For task e) it may be useful to use r instead
                               // in the time-resolved datasets instead
@@ -215,7 +216,8 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
       potential(potential),
       thermostat(thermostat),
       numBins(numBins),
-      binSize(L / numBins) /*TODO*/
+      // /2 = berücksichtige cutoff…
+      binSize(L / numBins / 2) // TODO
 {
     cout << "MD init start" << endl;
 
