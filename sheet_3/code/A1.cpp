@@ -1,5 +1,6 @@
 #include <eigen3/Eigen/Dense>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -159,6 +160,7 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
 
     // save final positions
     myfile.open(filenameR);
+    cout << "r.size(): " << r.size() << endl;
     for (int i = 0; i < r.size(); i++) {
         myfile << r[i].x() << "\t" << r[i].y() << endl;
     }
@@ -268,11 +270,66 @@ void MD::equilibrate(const double dt, const unsigned int n) {
     }
 }
 
-Data MD::measure(const double dt, const unsigned int n) {
+Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // double t, T, Ekin, Epot;
     // Vector2d vS;
+    vector<double> stupidHist; //dummy
 
-    // TODO COPILOT
+
+    // verlet algorithm
+    for (uint i = 1; i <= n; i++){
+        cout << "Time step: " << i << endl;
+        // write r to csv file
+        ofstream file("build/r"+to_string(i)+".csv");
+        for (uint j=0; j<N; j++){
+            if (file.is_open()) {
+                file << r[j].x() << ", " << r[j].y() << endl;
+            } else {
+                cerr << "Unable to open file" << endl;
+            }
+        }
+        file.close();
+
+        vector<Vector2d> a_n = calcAcc(stupidHist); // calc acceleration for each particle
+        vector<Vector2d> r_n = r; // save r_n
+
+
+        // calc r_n+1 for each particle
+        for (uint ind=0; ind<N; ind++){
+
+            // r_n+1 = r_n + v_n*dt + 0.5*a_n*dt*dt
+            r[ind] = r_n[ind] + v[ind]*dt + 0.5*a_n[ind]*dt*dt;
+        }
+
+        // periodic boundary conditions
+        centerParticles();
+
+        // calc acceleration for new positions: a_n+1
+        vector<Vector2d> a_np1 = calcAcc(stupidHist); 
+
+        // calc v_n+1 for each particle
+        for (uint ind=0; ind<N; ind++){
+
+            // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
+            v[ind] = v[ind] + 0.5*(a_np1[ind] + a_n[ind]);
+        }
+
+        // calc temperature
+        double T = calcT();
+
+        // TODO: rescale velocities with thermostat
+
+        double Ekin = calcEkin(); // calc energy
+        Vector2d vS = calcvS(); // calc vS
+        double Epot = calcEpot(); // calc Epot
+
+        // save data
+        Dataset set = {i*dt, T, Ekin, Epot, vS};
+
+        // save set, g in data
+    }
+
+
     Data data(n, numBins, binSize);
     return data;
 }
@@ -396,7 +453,7 @@ int main(void) {
     {
         const double T = 1;   // T(0)
         const double dt = 1;  // TODO
-        const uint steps = 1; // TODO
+        const uint steps = 5; // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         cout << "++ MD init complete" << endl;
@@ -415,12 +472,6 @@ int main(void) {
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         cout << "++ MD equilibrate start" << endl;
         md.equilibrate(dt, equiSteps);
-        cout << "++ MD equilibrate complete" << endl;
-        md.measure(dt, steps).save("build/c)set" + Tstring + ".tsv", "build/c)g" + Tstring + ".tsv", "build/c)r" + Tstring + ".tsv");
-    }
-
-    // d) Thermostat
-    {
         /*TODO*/
     }
 
