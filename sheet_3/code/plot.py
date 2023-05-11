@@ -47,11 +47,13 @@ fig, ax = plt.subplots()
 
 # Define a function to update the plot for each frame
 
+x_max = np.max(data[:, :, 0])
+y_max = np.max(data[:, :, 1])
 
 def update(frame):
     ax.clear()
-    ax.set_xlim(0, 6)
-    ax.set_ylim(0, 6)
+    ax.set_xlim(0, x_max)
+    ax.set_ylim(0, y_max)
     ax.set_title('Frame {}'.format(frame))
     ax.scatter(data[frame, :, 0], data[frame, :, 1])
 
@@ -63,6 +65,6 @@ ani = animation.FuncAnimation(fig, update, frames=len(data), interval=100)
 plt.show()
 
 # Save the animation (mp4)
-# ani.save('animation.mp4', writer='ffmpeg', fps=5, dpi=600)
+# ani.save('animation.mp4', writer='ffmpeg', fps=(1000//10), dpi=600)
 
 # %%

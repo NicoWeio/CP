@@ -153,6 +153,8 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
 
     // save datasets
     myfile.open(filenameSets);
+    myfile << "t\tT\tEkin\tEpot\tvSx\tvSy" << endl;
+
     for (const Dataset &set : datasets) {
         myfile << set.t << "\t" << set.T << "\t" << set.Ekin << "\t" << set.Epot << "\t" << set.vS.x() << "\t" << set.vS.y() << endl;
     }
@@ -160,6 +162,7 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
 
     // save pair correlation function
     myfile.open(filenameG);
+    myfile << "rBin\tg" << endl;
     for (int i = 0; i < g.size(); i++) {
         myfile << rBin[i] << "\t" << g[i] << endl;
     }
@@ -167,6 +170,7 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
 
     // save final positions
     myfile.open(filenameR);
+    myfile << "x\ty" << endl;
     for (int i = 0; i < r.size(); i++) {
         myfile << r[i].x() << "\t" << r[i].y() << endl;
     }
@@ -186,6 +190,8 @@ class MD {
     Data measure(const double dt, const unsigned int n);
 
   private:
+    void verlet(const double dt);
+
     vector<Vector2d> r, v;
     double L;
     uint N;
@@ -212,6 +218,7 @@ class MD {
     // To avoid redundant calculations, it may be useful to update the histogram
     // when calculating the accelerations, so it is passed here as a reference.
     vector<Vector2d> calcAcc(vector<double> &hist) const;
+    vector<Vector2d> calcAcc_2(vector<double> &hist) const;
 
     // Calculation of the distance vector between particle r[i] and closest mirror particle of r[j].
     Vector2d calcDistanceVec(uint i, uint j) const;
@@ -271,19 +278,17 @@ MD::MD(double L, uint N, uint particlesPerRow, double T0,
 // Integration without data acquisition for pure equilibration
 void MD::equilibrate(const double dt, const unsigned int n) {
     vector<double> stupidHist;
-
-    calcAcc(stupidHist);
-
-    vector<int> vec(10);
-    for (int i : vec) {
-        // cout << i << "\t";
+    cout << "Equilibrating...";
+    for (uint i = 1; i <= n; i++) {
+        verlet(dt);
+        cout << ".";
     }
+    cout << endl;
 }
 
 Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // double t, T, Ekin, Epot;
     // Vector2d vS;
-    vector<double> stupidHist; // dummy
 
     // create data object and save initial values
     Data data(n+1, numBins, binSize); // NOTE: n+1 because we want to save the initial values too
@@ -296,37 +301,13 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // verlet algorithm
     for (uint i = 1; i <= n; i++) {
         t = i * dt;
+        verlet(dt);
 
         // write r to csv file
         for (uint j = 0; j < N; j++) {
             file << r[j].x() << "," << r[j].y() << " | ";
         }
         file << endl;
-
-        vector<Vector2d> a_n = calcAcc(stupidHist); // calc acceleration for each particle
-        vector<Vector2d> r_n = r;                   // save r_n
-
-        // calc r_n+1 for each particle
-        for (uint ind = 0; ind < N; ind++) {
-
-            // r_n+1 = r_n + v_n*dt + 0.5*a_n*dt*dt
-            r[ind] = r_n[ind] + v[ind] * dt + 0.5 * a_n[ind] * dt * dt;
-        }
-
-        // periodic boundary conditions
-        centerParticles();
-
-        // calc acceleration for new positions: a_n+1
-        vector<Vector2d> a_np1 = calcAcc(stupidHist);
-
-        // calc v_n+1 for each particle
-        for (uint ind = 0; ind < N; ind++) {
-            // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
-            v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind]);
-        }
-
-        // rescale velocities
-        thermostat.rescale(v, calcT(), T0); // TODO: reuse T from calcDataset()?
 
         // save data in dataset
         data.datasets[i] = calcDataset();
@@ -337,6 +318,34 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     file.close();
 
     return data;
+}
+
+void MD::verlet(const double dt) {
+    vector<double> stupidHist; // dummy
+
+    vector<Vector2d> a_n = calcAcc_2(stupidHist); // calc acceleration for each particle
+    vector<Vector2d> r_n = r;                   // save r_n
+
+    // calc r_n+1 for each particle
+    for (uint ind = 0; ind < N; ind++) {
+        // r_n+1 = r_n + v_n*dt + 0.5*a_n*dt*dt
+        r[ind] = r_n[ind] + v[ind] * dt + 0.5 * a_n[ind] * dt * dt;
+    }
+
+    // periodic boundary conditions
+    centerParticles();
+
+    // calc acceleration for new positions: a_n+1
+    vector<Vector2d> a_np1 = calcAcc_2(stupidHist);
+
+    // calc v_n+1 for each particle
+    for (uint ind = 0; ind < N; ind++) {
+        // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
+        v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind]);
+    }
+
+    // rescale velocities
+    thermostat.rescale(v, calcT(), T0); // TODO: reuse T from calcDataset()?
 }
 
 // Particles are moved in box [0,L]x[0,L].
@@ -448,6 +457,33 @@ vector<Vector2d> MD::calcAcc(vector<double> &hist) const {
     return a;
 }
 
+
+vector<Vector2d> MD::calcAcc_2(vector<double> &hist) const {
+    // variant of calcAcc that uses explicit for loops
+    vector<Vector2d> a(N, Vector2d(0, 0));
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+                // self-interaction is not allowed
+                // NOTE: This would be caught by the if statement below, but this is more efficient
+                if (i == j) {
+                    continue;
+                }
+
+                Vector2d r_ij = calcDistanceVec(i, j);
+                Vector2d F_ij = potential.F(r_ij);
+
+                // if r_ij is (0,0), then the particles are too far away from each other
+                if (r_ij.squaredNorm() == 0) {
+                    continue;
+                }
+
+                a[i] += F_ij;
+        }
+    }
+    return a;
+}
+
 // ------------------------------ End of MD-class ------------------------------------------
 
 int main(void) {
@@ -457,30 +493,33 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint particlesPerRow = 3;
+    const uint particlesPerRow = 5;
     const uint N = particlesPerRow * particlesPerRow;
     const double L = 2 * particlesPerRow * sigma; // TODO
     const int numBins = 1;                        // TODO
 
     // b) Equilibration test
     {
-        const double T = 1;    // T(0)
-        const double dt = 0.01; // siehe Aufgabenstellung ✓
-        const uint steps = 100; // TODO
+        const double T = 1; // T(0) siehe Aufgabenstellung ✓
+        // const double dt = 0.01; // siehe Aufgabenstellung ✓
+        const double dt = 0.001; // ⚠️ TODO
+        const uint steps = 400; // TODO
 
-        // MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
+        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        // MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
     }
+
+    exit(0);
 
     // c) Pair correlation function
     string TstringVec[3] = {"0.01", "1", "100"};
     for (auto &Tstring : TstringVec) {
         const double T = stod(Tstring);
         const double dt = 1;      // TODO
-        const uint equiSteps = 1; // TODO
+        const uint equiSteps = 200; // TODO
         const uint steps = 1;     // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
