@@ -341,20 +341,28 @@ void MD::centerParticles() {
     // NOTE: This does not handle the case where a particle is outside of the box by more than L.
     // TODO: Use modulo instead?
 
-    for (int i = 0; i < N; i++) {
-        if (r[i].x() < 0) {
-            r[i].x() += L;
-        } else if (r[i].x() > L) {
-            r[i].x() -= L;
-        }
+    // for (int i = 0; i < N; i++) {
+    //     if (r[i].x() < 0) {
+    //         r[i].x() += L;
+    //     } else if (r[i].x() > L) {
+    //         r[i].x() -= L;
+    //     }
+// 
+    //     if (r[i].y() < 0) {
+    //         r[i].y() += L;
+    //     } else if (r[i].y() > L) {
+    //         r[i].y() -= L;
+    //     }
+    // }
 
-        if (r[i].y() < 0) {
-            r[i].y() += L;
-        } else if (r[i].y() > L) {
-            r[i].y() -= L;
+    //ALTERNATIVE
+    for (int i = 0; i < N; i++) {
+        // Apply periodic boundary conditions
+        r[i].x() = fmod(fmod(r[i].x(), L) + L, L);
+        r[i].y() = fmod(fmod(r[i].y(), L) + L, L);
         }
-    }
 }
+
 
 double MD::calcT() const {
     double N_f = 3 * N - 3; // number of degrees of freedom
