@@ -70,6 +70,7 @@ class PotentialLJ : public Potential {
 double PotentialLJ::V(double r2) const {
     // For the potential, the square of the vector length is sufficient, which saves a root calculation.
     double r2_6 = pow(sigma / r2, 6);
+    // cout << r2 << ", ";
     return 4 * epsilon * (r2_6 * r2_6 - r2_6);
 }
 
@@ -90,23 +91,29 @@ Vector2d PotentialLJ::F(Vector2d r) const {
 // Virtual class from which concrete thermostats can be inherited
 class Thermostat {
   public:
-    virtual void rescale(vector<Vector2d> &v, double T) const = 0;
+    virtual void rescale(vector<Vector2d> &v, double T, double T0) const = 0;
 };
 
 // No thermostat
 class NoThermostat : public Thermostat {
   public:
-    void rescale(vector<Vector2d> &v, double T) const {} // does nothing
+    void rescale(vector<Vector2d> &v, double T, double T0) const {} // does nothing
 };
 
 // Isokinetic thermostat for task d)
 class IsokinThermostat : public Thermostat {
   public:
-    void rescale(vector<Vector2d> &v, double T) const;
+    void rescale(vector<Vector2d> &v, double T, double T0) const;
 };
 
-void IsokinThermostat::rescale(vector<Vector2d> &v, double T) const {
-    /*TODO*/
+void IsokinThermostat::rescale(vector<Vector2d> &v, double T, double T0) const {
+    // Scale velocities to achieve desired temperature
+    // NOTE: T ~ Ekin ~ p^2 ~ v^2 → v ~ sqrt(T)
+    double scale = sqrt(T0 / T);
+    for (int i = 0; i < v.size(); i++) {
+        v[i] *= scale;
+    }
+    cout << "velocities scaled" << endl;
 }
 
 // ------------------------------ End of Thermostat class ------------------------------------------
@@ -189,6 +196,8 @@ class MD {
     uint numBins;
     double binSize;
 
+    double T0; // ours
+
     // Particles are moved in box [0,L]x[0,L].
     void centerParticles();
 
@@ -209,7 +218,7 @@ class MD {
 };
 
 // Initialization of the system via constructor
-MD::MD(double L, uint N, uint particlesPerRow, double T,
+MD::MD(double L, uint N, uint particlesPerRow, double T0,
        Potential &potential, Thermostat &thermostat,
        uint numBins)
     : L(L),
@@ -218,7 +227,8 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
       thermostat(thermostat),
       numBins(numBins),
       // /2 = berücksichtige cutoff…
-      binSize(L / numBins / 2) // TODO
+      binSize(L / numBins / 2), // TODO
+      T0(T0)
 {
     cout << "MD init start" << endl;
 
@@ -229,7 +239,8 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
     // NOTE: distance between particles: L / particlesPerRow = 2*n*sigma / n = 2*sigma
     for (uint i = 0; i < particlesPerRow; i++) {
         for (uint j = 0; j < particlesPerRow; j++) {
-            Vector2d r_ij = Vector2d(2 * i * sigma, 2 * j * sigma);
+            // NOTE: We offset by 1 so the particles are not on the boundary
+            Vector2d r_ij = Vector2d(2 * i * sigma + 1, 2 * j * sigma + 1);
             r.push_back(r_ij);
 
             Vector2d v_ij = Vector2d(dist(rnd), dist(rnd));
@@ -247,8 +258,8 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
 
     // Scale velocities to achieve desired temperature
     // NOTE: T ~ Ekin ~ p^2 ~ v^2 → v ~ sqrt(T)
-    double T0 = calcT();
-    double scale = sqrt(T / T0);
+    double T = calcT();
+    double scale = sqrt(T0 / T);
     for (int i = 0; i < N; i++) {
         v[i] *= scale;
     }
@@ -275,25 +286,22 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     vector<double> stupidHist; // dummy
 
     // create data object and save initial values
-    Data data(n, numBins, binSize);
+    Data data(n+1, numBins, binSize); // NOTE: n+1 because we want to save the initial values too
     data.datasets[0] = calcDataset();
     data.r = r;
     // TODO: save r_bin, g in data
+
+    ofstream file("build/r_merged.txt");
 
     // verlet algorithm
     for (uint i = 1; i <= n; i++) {
         t = i * dt;
 
         // write r to csv file
-        ofstream file("build/r" + to_string(i) + ".csv");
         for (uint j = 0; j < N; j++) {
-            if (file.is_open()) {
-                file << r[j].x() << ", " << r[j].y() << endl;
-            } else {
-                cerr << "Unable to open file" << endl;
-            }
+            file << r[j].x() << "," << r[j].y() << " | ";
         }
-        file.close();
+        file << endl;
 
         vector<Vector2d> a_n = calcAcc(stupidHist); // calc acceleration for each particle
         vector<Vector2d> r_n = r;                   // save r_n
@@ -317,13 +325,16 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
             v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind]);
         }
 
-        // TODO: rescale velocities with thermostat
+        // rescale velocities
+        thermostat.rescale(v, calcT(), T0); // TODO: reuse T from calcDataset()?
 
         // save data in dataset
-        data.datasets[i - 1] = calcDataset();
+        data.datasets[i] = calcDataset();
         data.r = r;
         // TODO: save r_bin, g in data
     }
+
+    file.close();
 
     return data;
 }
@@ -332,26 +343,7 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
 void MD::centerParticles() {
     // Ensure periodic boundary conditions ([0,L]x[0,L])
     // If the particle is outside of box, move it to the other side
-    // NOTE: This does not handle the case where a particle is outside of the box by more than L.
-    // TODO: Use modulo instead?
-
-    // for (int i = 0; i < N; i++) {
-    //     if (r[i].x() < 0) {
-    //         r[i].x() += L;
-    //     } else if (r[i].x() > L) {
-    //         r[i].x() -= L;
-    //     }
-    //
-    //     if (r[i].y() < 0) {
-    //         r[i].y() += L;
-    //     } else if (r[i].y() > L) {
-    //         r[i].y() -= L;
-    //     }
-    // }
-
-    // ALTERNATIVE
     for (int i = 0; i < N; i++) {
-        // Apply periodic boundary conditions
         r[i].x() = fmod(fmod(r[i].x(), L) + L, L);
         r[i].y() = fmod(fmod(r[i].y(), L) + L, L);
     }
@@ -373,10 +365,19 @@ double MD::calcEkin() const {
 
 double MD::calcEpot() const {
     double Epot = 0;
+    // cout << "BEGIN V_ij: ";
     for (int i = 0; i < N; i++) {
         for (int j = i + 1; j < N; j++) {
             Vector2d r_ij = calcDistanceVec(i, j);
-            Epot += potential.V(r_ij.squaredNorm());
+            double V_ij = potential.V(r_ij.squaredNorm());
+
+            // if r_ij is (0,0), then the particles are too far away from each other
+            if (r_ij.squaredNorm() == 0) {
+                continue;
+            }
+
+            // cout << V_ij << ", ";
+            Epot += V_ij;
         }
     }
     return Epot;
@@ -464,10 +465,11 @@ int main(void) {
     // b) Equilibration test
     {
         const double T = 1;    // T(0)
-        const double dt = 0.1; // TODO
-        const uint steps = 10; // TODO
+        const double dt = 0.01; // siehe Aufgabenstellung ✓
+        const uint steps = 100; // TODO
 
-        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        // MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
