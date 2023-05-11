@@ -160,7 +160,6 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
 
     // save final positions
     myfile.open(filenameR);
-    cout << "r.size(): " << r.size() << endl;
     for (int i = 0; i < r.size(); i++) {
         myfile << r[i].x() << "\t" << r[i].y() << endl;
     }
@@ -232,7 +231,7 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
         for (uint j = 0; j < particlesPerRow; j++) {
             Vector2d r_ij = Vector2d(2 * i * sigma, 2 * j * sigma);
             r.push_back(r_ij);
-            // v.push_back(Vector2d(0, 0));
+            
             Vector2d v_ij = Vector2d(dist(rnd), dist(rnd));
             v.push_back(v_ij);
         }
@@ -284,7 +283,6 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // verlet algorithm
     for (uint i = 1; i <= n; i++){
         t = i*dt;
-        cout << "Time: " << t << endl;
 
         // write r to csv file
         ofstream file("build/r"+to_string(i)+".csv");
@@ -408,7 +406,8 @@ Dataset MD::calcDataset() const {
 
         Dataset set = {t, T, Ekin, Epot, vS};
 
-        cout << "T: " << T << ", Ekin: " << Ekin << ", Epot: " << Epot << ", vS: " << vS << endl;
+        cout << "\nTime: " << t << endl;
+        cout << "T: " << T << ", Ekin: " << Ekin << ", Epot: " << Epot << ", vS: (" << vS.x() << ", " << vS.y() << ")" << endl;
 
     return set;
 }
@@ -470,8 +469,8 @@ int main(void) {
     // b) Equilibration test
     {
         const double T = 1;   // T(0)
-        const double dt = 1;  // TODO
-        const uint steps = 5; // TODO
+        const double dt = 0.1;  // TODO
+        const uint steps = 10; // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         cout << "++ MD init complete" << endl;
