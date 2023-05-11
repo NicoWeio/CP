@@ -275,10 +275,17 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // Vector2d vS;
     vector<double> stupidHist; //dummy
 
+    // create data object and save initial values
+    Data data(n, numBins, binSize);
+    data.datasets[0] = calcDataset();
+    data.r = r;
+    // TODO: save r_bin, g in data
 
     // verlet algorithm
     for (uint i = 1; i <= n; i++){
-        cout << "Time step: " << i << endl;
+        t = i*dt;
+        cout << "Time: " << t << endl;
+
         // write r to csv file
         ofstream file("build/r"+to_string(i)+".csv");
         for (uint j=0; j<N; j++){
@@ -309,28 +316,21 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
 
         // calc v_n+1 for each particle
         for (uint ind=0; ind<N; ind++){
-
             // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
             v[ind] = v[ind] + 0.5*(a_np1[ind] + a_n[ind]);
         }
 
-        // calc temperature
-        double T = calcT();
-
         // TODO: rescale velocities with thermostat
 
-        double Ekin = calcEkin(); // calc energy
-        Vector2d vS = calcvS(); // calc vS
-        double Epot = calcEpot(); // calc Epot
-
-        // save data
-        Dataset set = {i*dt, T, Ekin, Epot, vS};
-
-        // save set, g in data
+        // save data in dataset
+        data.datasets[i-1] = calcDataset();
+        data.r = r;
+        // TODO: save r_bin, g in data
+        
+        
     }
 
 
-    Data data(n, numBins, binSize);
     return data;
 }
 
@@ -392,7 +392,17 @@ Vector2d MD::calcvS() const {
 }
 
 Dataset MD::calcDataset() const {
-    /*TODO*/
+    // calc data
+        double T = calcT(); // calc temperature
+        double Ekin = calcEkin(); // calc energy
+        double Epot = calcEpot(); // calc Epot
+        Vector2d vS = calcvS(); // calc vS
+
+        Dataset set = {t, T, Ekin, Epot, vS};
+
+        cout << "T: " << T << ", Ekin: " << Ekin << ", Epot: " << Epot << ", vS: " << vS << endl;
+
+    return set;
 }
 
 Vector2d MD::calcDistanceVec(uint i, uint j) const {
