@@ -1,8 +1,8 @@
 #include <eigen3/Eigen/Dense>
 #include <fstream>
-#include <sstream>
 #include <iostream>
 #include <random>
+#include <sstream>
 #include <vector>
 
 using namespace std;
@@ -231,7 +231,7 @@ MD::MD(double L, uint N, uint particlesPerRow, double T,
         for (uint j = 0; j < particlesPerRow; j++) {
             Vector2d r_ij = Vector2d(2 * i * sigma, 2 * j * sigma);
             r.push_back(r_ij);
-            
+
             Vector2d v_ij = Vector2d(dist(rnd), dist(rnd));
             v.push_back(v_ij);
         }
@@ -272,7 +272,7 @@ void MD::equilibrate(const double dt, const unsigned int n) {
 Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // double t, T, Ekin, Epot;
     // Vector2d vS;
-    vector<double> stupidHist; //dummy
+    vector<double> stupidHist; // dummy
 
     // create data object and save initial values
     Data data(n, numBins, binSize);
@@ -281,12 +281,12 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // TODO: save r_bin, g in data
 
     // verlet algorithm
-    for (uint i = 1; i <= n; i++){
-        t = i*dt;
+    for (uint i = 1; i <= n; i++) {
+        t = i * dt;
 
         // write r to csv file
-        ofstream file("build/r"+to_string(i)+".csv");
-        for (uint j=0; j<N; j++){
+        ofstream file("build/r" + to_string(i) + ".csv");
+        for (uint j = 0; j < N; j++) {
             if (file.is_open()) {
                 file << r[j].x() << ", " << r[j].y() << endl;
             } else {
@@ -296,38 +296,34 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
         file.close();
 
         vector<Vector2d> a_n = calcAcc(stupidHist); // calc acceleration for each particle
-        vector<Vector2d> r_n = r; // save r_n
-
+        vector<Vector2d> r_n = r;                   // save r_n
 
         // calc r_n+1 for each particle
-        for (uint ind=0; ind<N; ind++){
+        for (uint ind = 0; ind < N; ind++) {
 
             // r_n+1 = r_n + v_n*dt + 0.5*a_n*dt*dt
-            r[ind] = r_n[ind] + v[ind]*dt + 0.5*a_n[ind]*dt*dt;
+            r[ind] = r_n[ind] + v[ind] * dt + 0.5 * a_n[ind] * dt * dt;
         }
 
         // periodic boundary conditions
         centerParticles();
 
         // calc acceleration for new positions: a_n+1
-        vector<Vector2d> a_np1 = calcAcc(stupidHist); 
+        vector<Vector2d> a_np1 = calcAcc(stupidHist);
 
         // calc v_n+1 for each particle
-        for (uint ind=0; ind<N; ind++){
+        for (uint ind = 0; ind < N; ind++) {
             // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
-            v[ind] = v[ind] + 0.5*(a_np1[ind] + a_n[ind]);
+            v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind]);
         }
 
         // TODO: rescale velocities with thermostat
 
         // save data in dataset
-        data.datasets[i-1] = calcDataset();
+        data.datasets[i - 1] = calcDataset();
         data.r = r;
         // TODO: save r_bin, g in data
-        
-        
     }
-
 
     return data;
 }
@@ -345,7 +341,7 @@ void MD::centerParticles() {
     //     } else if (r[i].x() > L) {
     //         r[i].x() -= L;
     //     }
-// 
+    //
     //     if (r[i].y() < 0) {
     //         r[i].y() += L;
     //     } else if (r[i].y() > L) {
@@ -353,14 +349,13 @@ void MD::centerParticles() {
     //     }
     // }
 
-    //ALTERNATIVE
+    // ALTERNATIVE
     for (int i = 0; i < N; i++) {
         // Apply periodic boundary conditions
         r[i].x() = fmod(fmod(r[i].x(), L) + L, L);
         r[i].y() = fmod(fmod(r[i].y(), L) + L, L);
-        }
+    }
 }
-
 
 double MD::calcT() const {
     double N_f = 3 * N - 3; // number of degrees of freedom
@@ -399,15 +394,15 @@ Vector2d MD::calcvS() const {
 
 Dataset MD::calcDataset() const {
     // calc data
-        double T = calcT(); // calc temperature
-        double Ekin = calcEkin(); // calc energy
-        double Epot = calcEpot(); // calc Epot
-        Vector2d vS = calcvS(); // calc vS
+    double T = calcT();       // calc temperature
+    double Ekin = calcEkin(); // calc energy
+    double Epot = calcEpot(); // calc Epot
+    Vector2d vS = calcvS();   // calc vS
 
-        Dataset set = {t, T, Ekin, Epot, vS};
+    Dataset set = {t, T, Ekin, Epot, vS};
 
-        cout << "\nTime: " << t << endl;
-        cout << "T: " << T << ", Ekin: " << Ekin << ", Epot: " << Epot << ", vS: (" << vS.x() << ", " << vS.y() << ")" << endl;
+    cout << "\nTime: " << t << endl;
+    cout << "T: " << T << ", Ekin: " << Ekin << ", Epot: " << Epot << ", vS: (" << vS.x() << ", " << vS.y() << ")" << endl;
 
     return set;
 }
@@ -468,8 +463,8 @@ int main(void) {
 
     // b) Equilibration test
     {
-        const double T = 1;   // T(0)
-        const double dt = 0.1;  // TODO
+        const double T = 1;    // T(0)
+        const double dt = 0.1; // TODO
         const uint steps = 10; // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
