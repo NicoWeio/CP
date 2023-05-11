@@ -4,6 +4,8 @@
 #include <random>
 #include <sstream>
 #include <vector>
+// #include <utility>
+#include <tuple>
 
 using namespace std;
 using namespace Eigen;
@@ -160,7 +162,7 @@ void Data::save(const string &filenameSets, const string &filenameG, const strin
     }
     myfile.close();
 
-    // save pair correlation function
+    // save (final) pair correlation function
     myfile.open(filenameG);
     myfile << "rBin\tg" << endl;
     for (int i = 0; i < g.size(); i++) {
@@ -191,6 +193,7 @@ class MD {
 
   private:
     void verlet(const double dt);
+    tuple<vector<double>, vector<double>> calcPairCorrelation();
 
     vector<Vector2d> r, v;
     double L;
@@ -235,9 +238,12 @@ MD::MD(double L, uint N, uint particlesPerRow, double T0,
       numBins(numBins),
       // /2 = berücksichtige cutoff…
       binSize(L / numBins / 2), // TODO
-      T0(T0)
-{
+      T0(T0) {
     cout << "MD init start" << endl;
+    cout << "Bin size: " << binSize << endl;
+    cout << "L: " << L << endl;
+    cout << "numBins: " << numBins << endl;
+    // exit(0);
 
     mt19937 rnd;
     uniform_real_distribution<double> dist(0, 1);
@@ -291,7 +297,7 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     // Vector2d vS;
 
     // create data object and save initial values
-    Data data(n+1, numBins, binSize); // NOTE: n+1 because we want to save the initial values too
+    Data data(n + 1, numBins, binSize); // NOTE: n+1 because we want to save the initial values too
     data.datasets[0] = calcDataset();
     data.r = r;
     // TODO: save r_bin, g in data
@@ -312,7 +318,7 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
         // save data in dataset
         data.datasets[i] = calcDataset();
         data.r = r;
-        // TODO: save r_bin, g in data
+        tie(data.rBin, data.g) = calcPairCorrelation();
     }
 
     file.close();
@@ -324,7 +330,7 @@ void MD::verlet(const double dt) {
     vector<double> stupidHist; // dummy
 
     vector<Vector2d> a_n = calcAcc_2(stupidHist); // calc acceleration for each particle
-    vector<Vector2d> r_n = r;                   // save r_n
+    vector<Vector2d> r_n = r;                     // save r_n
 
     // calc r_n+1 for each particle
     for (uint ind = 0; ind < N; ind++) {
@@ -457,31 +463,91 @@ vector<Vector2d> MD::calcAcc(vector<double> &hist) const {
     return a;
 }
 
-
 vector<Vector2d> MD::calcAcc_2(vector<double> &hist) const {
     // variant of calcAcc that uses explicit for loops
     vector<Vector2d> a(N, Vector2d(0, 0));
 
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
-                // self-interaction is not allowed
-                // NOTE: This would be caught by the if statement below, but this is more efficient
-                if (i == j) {
-                    continue;
-                }
+            // self-interaction is not allowed
+            // NOTE: This would be caught by the if statement below, but this is more efficient
+            if (i == j) {
+                continue;
+            }
 
-                Vector2d r_ij = calcDistanceVec(i, j);
-                Vector2d F_ij = potential.F(r_ij);
+            Vector2d r_ij = calcDistanceVec(i, j);
+            Vector2d F_ij = potential.F(r_ij);
 
-                // if r_ij is (0,0), then the particles are too far away from each other
-                if (r_ij.squaredNorm() == 0) {
-                    continue;
-                }
+            // if r_ij is (0,0), then the particles are too far away from each other
+            if (r_ij.squaredNorm() == 0) {
+                continue;
+            }
 
-                a[i] += F_ij;
+            a[i] += F_ij;
         }
     }
     return a;
+}
+
+tuple<vector<double>, vector<double>> MD::calcPairCorrelation() {
+    // vector<double> rBin, g
+    // numBins, binSize
+
+    // iterate over particles
+    //  → iterate over other particles
+    //     → calc distance
+    //     → calc bin index
+    //     → add to g
+    // average over these pair correlation functions
+
+    vector<double> rBin_temp(numBins, 0.);
+    for (int i = 1; i <= numBins; i++) {
+        rBin_temp[i] = i * binSize;
+    }
+    // NOTE: r will denote the right edge of the bin! ⚠️
+
+    // initialize temporary g with "shape" (N, numBins)
+    vector<vector<double>> g_i(N, vector<double>(numBins, 0.));
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            double r_ij = calcDistanceVec(i, j).norm();
+
+            if (i == j || r_ij == 0) {
+                // skip if particle is itself or beyond cutoff
+                continue;
+            }
+
+            int binIndex = r_ij / binSize;
+            g_i[i][binIndex] += 1;
+        }
+    }
+
+    vector<double> g_temp(numBins, 0.);
+    // average over g_i
+    for (int i = 0; i < N; i++) {
+        for (int binIndex = 0; binIndex < numBins; binIndex++) {
+            g_temp[binIndex] += g_i[i][binIndex] / N;
+        }
+    }
+
+    // weight by bin size (area)
+    for (int binIndex = 0; binIndex < numBins; binIndex++) {
+        double r = binIndex * binSize;
+        double A = M_PI * (pow(r + binSize, 2) - pow(r, 2));
+        g_temp[binIndex] /= A;
+    }
+
+    // norm to 1
+    double norm = 0;
+    for (int binIndex = 0; binIndex < numBins; binIndex++) {
+        norm += g_temp[binIndex];
+    }
+    for (int binIndex = 0; binIndex < numBins; binIndex++) {
+        g_temp[binIndex] /= norm;
+    }
+
+    // return a tuple of r and g
+    return make_tuple(rBin_temp, g_temp);
 }
 
 // ------------------------------ End of MD-class ------------------------------------------
@@ -493,20 +559,23 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint particlesPerRow = 5;
+    const uint particlesPerRow = 8;
     const uint N = particlesPerRow * particlesPerRow;
     const double L = 2 * particlesPerRow * sigma; // TODO
-    const int numBins = 1;                        // TODO
+    // const int numBins = N / 2;                    // π·Daumen
+    // FIXME: uneven numBins lead to crashes!
+    const int numBins = 22; // π·Daumen
+    // const int numBins = 2 * N; // ⚠️ TODO
 
     // b) Equilibration test
     {
-        const double T = 1; // T(0) siehe Aufgabenstellung ✓
-        // const double dt = 0.01; // siehe Aufgabenstellung ✓
-        const double dt = 0.001; // ⚠️ TODO
+        const double T = 1;     // T(0) siehe Aufgabenstellung ✓
+        const double dt = 0.01; // siehe Aufgabenstellung ✓
+        // const double dt = 0.001; // ⚠️ TODO
         const uint steps = 400; // TODO
 
-        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        // MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
+        // MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
@@ -518,9 +587,9 @@ int main(void) {
     string TstringVec[3] = {"0.01", "1", "100"};
     for (auto &Tstring : TstringVec) {
         const double T = stod(Tstring);
-        const double dt = 1;      // TODO
+        const double dt = 1;        // TODO
         const uint equiSteps = 200; // TODO
-        const uint steps = 1;     // TODO
+        const uint steps = 1;       // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         cout << "++ MD equilibrate start" << endl;
