@@ -12,7 +12,6 @@ sns.lineplot(data=df, x="t", y="Ekin", label="Ekin")
 # |Epot|
 abs_Epot = df["Epot"].abs()
 sns.lineplot(data=df, x="t", y=abs_Epot, label="|Epot|")
-plt.yscale("log")
 plt.xlabel("$t$")
 plt.ylabel("$E$")
 plt.grid()

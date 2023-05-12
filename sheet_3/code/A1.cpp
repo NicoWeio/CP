@@ -300,6 +300,8 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     Data data(n + 1, numBins, binSize); // NOTE: n+1 because we want to save the initial values too
     data.datasets[0] = calcDataset();
     data.r = r;
+    vector<vector<double>> g_set(n, vector<double>(numBins, 0.)); // save g for each timestep
+
     // TODO: save r_bin, g in data
 
     ofstream file("build/r_merged.txt");
@@ -318,7 +320,18 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
         // save data in dataset
         data.datasets[i] = calcDataset();
         data.r = r;
-        tie(data.rBin, data.g) = calcPairCorrelation();
+
+        // update pair correlation function
+        // form the mean value of all pair correlation functions
+
+        tie(data.rBin, g_set[i-1]) = calcPairCorrelation();
+    }
+
+    // average over g_set
+    for (int i = 0; i < n; i++) {
+        for (int binIndex = 0; binIndex < numBins; binIndex++) {
+            data.g[binIndex] += g_set[i][binIndex] / n;
+        }
     }
 
     file.close();
@@ -564,7 +577,7 @@ int main(void) {
     const double L = 2 * particlesPerRow * sigma; // TODO
     // const int numBins = N / 2;                    // π·Daumen
     // FIXME: uneven numBins lead to crashes!
-    const int numBins = 22; // π·Daumen
+    const int numBins = 10; // π·Daumen
     // const int numBins = 2 * N; // ⚠️ TODO
 
     // b) Equilibration test
@@ -577,6 +590,7 @@ int main(void) {
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
         //MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
+        md.equilibrate(dt, 300);
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
     }
