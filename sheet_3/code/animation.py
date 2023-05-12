@@ -32,6 +32,12 @@ def load_merged_r(filename):
 # Load data
 r_merged = load_merged_r("build/r_merged.txt")
 data = r_merged
+
+# remove every 2nd frame
+data = data[::2, :, :]
+data = data[::2, :, :]
+data = data[::2, :, :]
+
 r_merged
 
 # %%

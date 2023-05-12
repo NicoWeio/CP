@@ -157,13 +157,13 @@ Die Abbildungen \ref{fig:obs_001}, \ref{fig:obs_1}, \ref{fig:obs_100} zeigen die
     \label{fig:obs_100}
 \end{figure}
 
-Die Paarkorrelationsfunktion hat bei $T=0.01$ und $T=1$ \textbf{ein} Maximum bei $r_\text{max} \sim 2.2$.
-Das System befindet sich in einer gasförmigen Phase.
-Steigt die Temperatur geht das System in eine flüssige Phase über.
+Die Paarkorrelationsfunktion hat bei $T=0.01$ und $T=1$ mehrere Maxima, die mit steigendem $r$ abflachen.
+Das System befindet sich in einer flüssigen Phase.
+Steigt die Temperatur geht das System in eine gasförmige Phase über.
 Dies ist bei $T=100$ der Fall.
-Die Paarkorrelationsfunktion weist nun weitere Maxima auf, die mit steigendem $r$ abflachen.
+Die Paarkorrelationsfunktion weist hier nur ein Maximum auf.
 \\
-(Leider nicht gut sichtbar, vielleicht besser mit größerem $n$ und $rBins$ aber keine Zeit da 3 Stunden vor Abgabe)
+(Leider nicht gut sichtbar, vielleicht besser mit größerem $n$ und $rBins$ aber keine Zeit da kurz vor Abgabe)
 
 \FloatBarrier
 
@@ -173,7 +173,7 @@ Dazu wird die Funktion \texttt{IsokinThermostat::rescale} in \texttt{A1.cpp} imp
 Die Temperatur wird also konstant gehalten.
 \\
 Es handelt sich um das bereits bekannte Teilchensystem mit Temperatur $T(0)=0.01$.
-Zuerst wird die Äquilibrierungsphase mit $\mathrm{d}t=0.01$ und $n=1000$ untersucht.
+Zuerst wird die Äquilibrierungsphase mit $\mathrm{d}t=0.01$ und $n=5000$ untersucht.
 Die Abbildung \ref{fig:obs_001_iso} zeigt die Energien und Temperaturen in Abhängigkeit der Zeit.
 \begin{figure}
     \centering
@@ -182,10 +182,11 @@ Die Abbildung \ref{fig:obs_001_iso} zeigt die Energien und Temperaturen in Abhä
     \label{fig:obs_001_iso}
 \end{figure}
 Energieerhaltung ist nicht weiter gegeben, da die Temperatur konstant gehalten wird.
-Die Äquilibrierungsphase ist in der Animation \texttt{n8\_T001\_thermo.mp4} zu sehen.
-Nach etwa $t_\text{equi} \approx 600$ Schritten ist das System äquilibriert.
+Nach etwa $t_\text{equi} \approx 4000$ Schritten konvergiert die potentielle Energie und es stellt sich ein stabiler Zustand ein.
+Die Entwicklung des Teilchensystem ist in der Animation \texttt{n8\_T001\_thermo.mp4} für $10000$ Zeitschritte zu sehen.
+%Nach etwa $t_\text{equi} \approx 600$ Schritten ist das System äquilibriert.
 \\
-Es wird nun die Paarverteilungsfunktion mit $n_\text{meas}=1000$ Schritten nach der Äquilibrierungsphase ($n_\text{equi}=1000$) gemessen.
+Es wird nun die Paarverteilungsfunktion mit $n_\text{meas}=10000$ Schritten nach der Äquilibrierungsphase ($n_\text{equi}=5000$) gemessen.
 Die Paarkorrelationsfunktion ist in Abbildung \ref{fig:g_001_iso} dargestellt.
 \begin{figure}
     \centering

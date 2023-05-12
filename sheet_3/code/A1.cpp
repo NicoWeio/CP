@@ -562,50 +562,52 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
+    // PARAMETERS
     const uint particlesPerRow = 8;
     const uint N = particlesPerRow * particlesPerRow;
     const double L = 2 * particlesPerRow * sigma;
+    const int numBins = 500;
 
-    const int numBins = 200;
+    // b) Equilibration test (example for T=1, dt=0.01, steps_meas=1000)
+    double T_b = 1;     // T(0)
+    double dt_b = 0.01;
+    uint steps_b = 1000;
 
-    // b) Equilibration test
-    //{
-    //    const double T = 1;     // T(0)
-    //    const double dt = 0.01;
-    //    const uint steps_meas = 1000;
-//
-    //    MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-    //    cout << "++ MD init complete" << endl;
-//
-    //    md.measure(dt, steps_meas).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
-    //    cout << "++ MD measure complete" << endl;
-    //}
+    MD md_b(L, N, particlesPerRow, T_b, LJ, noThermo, numBins);
+    cout << "++ MD init complete" << endl;
+
+    md_b.measure(dt_b, steps_b).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
+    cout << "++ MD measure complete" << endl;
 
     // c) Pair correlation function
-    //string TstringVec[3] = {"0.01", "1", "100"};
-    //string TstringVec[1] = {"100"};
-    //for (auto &Tstring : TstringVec) {
-    //    const double T = stod(Tstring);
-    //    const double dt = 0.001;        // TODO
-    //    const uint equiSteps = 2000; // TODO
-    //    const uint steps = 10000;       // TODO
-//
-    //    MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-    //    cout << "++ MD equilibrate start for T = " << Tstring << endl;
-    //    md.equilibrate(dt, equiSteps);
-    //    cout << "++ MD measure start for T = " << Tstring << endl;
-//
-    //    md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");//("build/c)set_" + Tstring + ".tsv", "build/c)g_" + Tstring + ".tsv", "build/c)r_" + Tstring + ".tsv");
-    //}
+    string TstringVec[3] = {"0.01", "1", "100"};
+    string dtstringVec[3] = {"0.01", "0.01", "0.001"};
+
+    uint equiSteps_c = 2000;
+    uint steps_c = 10000;
+
+    for (int i = 0; i < 3; i++) {
+        double T_c = stod(TstringVec[i]);
+        double dt_c = stod(dtstringVec[i]);
+        
+        MD md_c(L, N, particlesPerRow, T_c, LJ, noThermo, numBins);
+        cout << "++ MD equilibrate start for T = " << T_c << " and dt = " << dt_c << endl;
+        md_c.equilibrate(dt_c, equiSteps_c);
+
+        cout << "++ MD measure start for T = " << T_c << " and dt = " << dt_c << endl;
+        md_c.measure(dt_c, steps_c).save("build/c)set_" + TstringVec[i] + ".tsv", "build/c)g_" + TstringVec[i] + ".tsv", "build/c)r_" + TstringVec[i] + ".tsv");
+    }
 
     // d) Isokinetic thermostat
-    const double T = 0.01;
-    const double dt = 0.01;        // TODO
-    const uint equiSteps = 1000; // TODO
-    const uint steps = 10000;
+    double T_d = 0.01;
+    double dt_d = 0.01;       
+    uint equiSteps_d = 5000;
+    uint steps_d = 10000;
 
-    MD md = MD(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
-    md.measure(dt, steps).save("build/d)set.tsv", "build/d)g.tsv", "build/d)r.tsv");
+    MD md_d = MD(L, N, particlesPerRow, T_d, LJ, isoThermo, numBins);
+
+    md_d.equilibrate(dt_d, equiSteps_d);
+    md_d.measure(dt_d, steps_d).save("build/d)set.tsv", "build/d)g.tsv", "build/d)r.tsv");
 
     return 0;
 }
