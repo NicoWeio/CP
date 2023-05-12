@@ -157,6 +157,14 @@ Die Abbildungen \ref{fig:obs_001}, \ref{fig:obs_1}, \ref{fig:obs_100} zeigen die
     \label{fig:obs_100}
 \end{figure}
 
+Die Paarkorrelationsfunktion hat bei $T=0.01$ und $T=1$ \textbf{ein} Maximum bei $r_\text{max} \sim 2.2$.
+Das System befindet sich in einer gasförmigen Phase.
+Steigt die Temperatur geht das System in eine flüssige Phase über.
+Dies ist bei $T=100$ der Fall.
+Die Paarkorrelationsfunktion weist nun weitere Maxima auf, die mit steigendem $r$ abflachen.
+\\
+(Leider nicht gut sichtbar, vielleicht besser mit größerem $n$ und $rBins$ aber keine Zeit da 3 Stunden vor Abgabe)
+
 \FloatBarrier
 
 \subsection{Isokinetisches Thermostat}
@@ -165,4 +173,68 @@ Dazu wird die Funktion \texttt{IsokinThermostat::rescale} in \texttt{A1.cpp} imp
 Die Temperatur wird also konstant gehalten.
 \\
 Es handelt sich um das bereits bekannte Teilchensystem mit Temperatur $T(0)=0.01$.
-Zuerst wird die Energie in der Äquilibrierungsphase untersucht.
+Zuerst wird die Äquilibrierungsphase mit $\mathrm{d}t=0.01$ und $n=1000$ untersucht.
+Die Abbildung \ref{fig:obs_001_iso} zeigt die Energien und Temperaturen in Abhängigkeit der Zeit.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/obs_d)_T001_thermo.pdf}
+    \caption{Energien und Temperatur für $T(0)=0.01$ mit isokinetischem Thermostat.}
+    \label{fig:obs_001_iso}
+\end{figure}
+Energieerhaltung ist nicht weiter gegeben, da die Temperatur konstant gehalten wird.
+Die Äquilibrierungsphase ist in der Animation \texttt{n8\_T001\_thermo.mp4} zu sehen.
+Nach etwa $t_\text{equi} \approx 600$ Schritten ist das System äquilibriert.
+\\
+Es wird nun die Paarverteilungsfunktion mit $n_\text{meas}=1000$ Schritten nach der Äquilibrierungsphase ($n_\text{equi}=1000$) gemessen.
+Die Paarkorrelationsfunktion ist in Abbildung \ref{fig:g_001_iso} dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/g_d)_T001_thermo.pdf}
+    \caption{Paarverteilungsfunktion für $T(0)=0.01$ mit isokinetischem Thermostat.}
+    \label{fig:g_001_iso}
+\end{figure}
+
+\FloatBarrier
+\subsection{Physikalische und chemische Systeme (Kurzfragen)}
+\textbf{Which quantities are kept constant during your simulation (after turning on your thermostat)?}
+\\
+\\
+Die Temperatur bzw. die kinetische Energie wird konstant gehalten, die Gesamtenergie ist nicht mehr erhalten.
+\\
+\\
+\\
+\textbf{Which thermodynamic ensemble is represented by that?}
+\\
+\\
+Ohne Thermostat: Mikrokanonisches Ensemble ($E$=const.)\\
+Mit Thermostat: Kanonisches Ensemble ($T$=const.)
+\\
+\\
+\\
+\textbf{You are using an isokinetic thermostat for your system. Is this kind of thermostat physically accurate? If not, name a physically accurate alternative.}
+\\
+\\
+Nein, es ist nicht physikalisch sinnvoll, da die Energien nicht Maxwell-Boltzmann-verteilt sind.
+Das Nosé-Hoover Thermostat führt zu Maxwell-Boltzmann-verteilten Energien.
+\\
+\\
+\\
+\textbf{A chemist asks you to do a MD-simulation on a chemical solution.
+In which way might such a system differ from the ensemble we considered so far?
+If you have to keep different quantities constant, name a way to do so for your simulation.}
+\\
+\\
+Unterschiedliche Teilchenarten sind möglich, weitere Wechselwirkungen zwischen Molekülen müssen betrachtet werden.
+Weitere Wechselwirkungen können durch zusätzliche Potentiale in der Simulation berücksichtigt werden.
+\\
+Problematisch wird auch die betrachtete Anzahl der Teilchen in einem chemischen System.
+Die Laufzeit für makroskopische Systeme ist zu groß, um sie mit MD zu simulieren.
+Coarse-grained Systeme können hier Abhilfe schaffen.
+D.h. mehrere Teilchen werden zu einem Teilchen zusammengefasst.
+\\
+\\
+\\
+\textbf{Which further potential should also be considered for a chemical solution (f.e. NaCl in water)?}
+\\
+\\
+Das Coulomb-Potential, da es sich um geladene Teilchen handelt.

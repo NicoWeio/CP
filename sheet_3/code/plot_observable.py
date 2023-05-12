@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # read in b)set.tsv
-df = pd.read_csv("build/b)set.tsv", sep="\t")
+df = pd.read_csv("build/d)set.tsv", sep="\t")
 # 't', 'T', 'Ekin', 'Epot', 'vSx', 'vSy'
 
 # create subplots for (t,T) and (t, E)
