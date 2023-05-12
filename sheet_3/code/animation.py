@@ -65,6 +65,6 @@ ani = animation.FuncAnimation(fig, update, frames=len(data), interval=100)
 plt.show()
 
 # Save the animation (mp4)
-# ani.save('animation.mp4', writer='ffmpeg', fps=(1000//10), dpi=600)
+ani.save('build/animation.mp4', writer='ffmpeg', fps=(100), dpi=600)
 
 # %%

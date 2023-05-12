@@ -4,7 +4,6 @@
 #include <random>
 #include <sstream>
 #include <vector>
-// #include <utility>
 #include <tuple>
 
 using namespace std;
@@ -77,11 +76,7 @@ double PotentialLJ::V(double r2) const {
 }
 
 Vector2d PotentialLJ::F(Vector2d r) const {
-    // COPILOT ↓
-    // return 24 * epsilon * (2 * pow(sigma, 12) / pow(r.norm(), 14) - pow(sigma, 6) / pow(r.norm(), 8)) * r;
     // → siehe Kierfeld, S. 72
-    // return 48 * epsilon * (pow(sigma, 12) / pow(r.norm(), 14) - 0.5 * pow(sigma, 6) / pow(r.norm(), 8)) * r;
-    // return 24 * (-pow(r, -7) + 2 * pow(r, -13));
 
     double K = 24 * (-pow(r.norm(), -7.) + 2 * pow(r.norm(), -13.));
     return r.normalized() * K;
@@ -219,11 +214,11 @@ class MD {
 
     // Calculation of the acceleration
     // To avoid redundant calculations, it may be useful to update the histogram
-    // when calculating the accelerations, so it is passed here as a reference.
-    vector<Vector2d> calcAcc(vector<double> &hist) const;
+    // when calculating the accelerations, so it is passed here as a reference
+    vector<Vector2d> calcAcc(vector<double> &hist) const; // not used
     vector<Vector2d> calcAcc_2(vector<double> &hist) const;
 
-    // Calculation of the distance vector between particle r[i] and closest mirror particle of r[j].
+    // Calculation of the distance vector between particle r[i] and closest mirror particle of r[j]
     Vector2d calcDistanceVec(uint i, uint j) const;
 };
 
@@ -239,15 +234,13 @@ MD::MD(double L, uint N, uint particlesPerRow, double T0,
       // /2 = berücksichtige cutoff…
       binSize(L / numBins / 2), // TODO
       T0(T0) {
-    cout << "MD init start" << endl;
+
     cout << "Bin size: " << binSize << endl;
     cout << "L: " << L << endl;
     cout << "numBins: " << numBins << endl;
-    // exit(0);
 
     mt19937 rnd;
     uniform_real_distribution<double> dist(0, 1);
-    // double random_number = dist(rnd);
 
     // NOTE: distance between particles: L / particlesPerRow = 2*n*sigma / n = 2*sigma
     for (uint i = 0; i < particlesPerRow; i++) {
@@ -278,7 +271,6 @@ MD::MD(double L, uint N, uint particlesPerRow, double T0,
     }
     cout << "velocities scaled" << endl;
 
-    // centerParticles();
 }
 
 // Integration without data acquisition for pure equilibration
@@ -301,8 +293,6 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
     data.datasets[0] = calcDataset();
     data.r = r;
     vector<vector<double>> g_set(n, vector<double>(numBins, 0.)); // save g for each timestep
-
-    // TODO: save r_bin, g in data
 
     ofstream file("build/r_merged.txt");
 
@@ -327,7 +317,7 @@ Data MD::measure(const double dt, const unsigned int n) { // n=steps???
         tie(data.rBin, g_set[i-1]) = calcPairCorrelation();
     }
 
-    // average over g_set
+    // time average over g_set
     for (int i = 0; i < n; i++) {
         for (int binIndex = 0; binIndex < numBins; binIndex++) {
             data.g[binIndex] += g_set[i][binIndex] / n;
@@ -439,7 +429,7 @@ Dataset MD::calcDataset() const {
 Vector2d MD::calcDistanceVec(uint i, uint j) const {
     // return r[i] - r[j];
 
-    const double r_cutoff = L / 2; // TODO move to constructor or something
+    const double r_cutoff = L / 2;
 
     // boundary conditions and cutoff
     for (int x = -1; x <= 1; x++) {
@@ -572,26 +562,22 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint particlesPerRow = 8;
+    const uint particlesPerRow = 4;
     const uint N = particlesPerRow * particlesPerRow;
-    const double L = 2 * particlesPerRow * sigma; // TODO
-    // const int numBins = N / 2;                    // π·Daumen
-    // FIXME: uneven numBins lead to crashes!
-    const int numBins = 10; // π·Daumen
-    // const int numBins = 2 * N; // ⚠️ TODO
+    const double L = 2 * particlesPerRow * sigma;
+
+    const int numBins = 1000;
 
     // b) Equilibration test
     {
-        const double T = 1;     // T(0) siehe Aufgabenstellung ✓
-        const double dt = 0.01; // siehe Aufgabenstellung ✓
-        // const double dt = 0.001; // ⚠️ TODO
-        const uint steps = 400; // TODO
+        const double T = 1;     // T(0)
+        const double dt = 0.01;
+        const uint steps_meas = 1000;
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        //MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
-        md.equilibrate(dt, 300);
-        md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
+
+        md.measure(dt, steps_meas).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
     }
 
