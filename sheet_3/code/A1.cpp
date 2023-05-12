@@ -347,7 +347,7 @@ void MD::verlet(const double dt) {
     // calc v_n+1 for each particle
     for (uint ind = 0; ind < N; ind++) {
         // v_n+1 = v_n + 0.5*(a_n+1 + a_n)*dt
-        v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind]);
+        v[ind] = v[ind] + 0.5 * (a_np1[ind] + a_n[ind])*dt;
     }
 
     // rescale velocities
@@ -574,8 +574,8 @@ int main(void) {
         // const double dt = 0.001; // ⚠️ TODO
         const uint steps = 400; // TODO
 
-        // MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
+        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+        //MD md(L, N, particlesPerRow, T, LJ, isoThermo, numBins);
         cout << "++ MD init complete" << endl;
         md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
         cout << "++ MD measure complete" << endl;
