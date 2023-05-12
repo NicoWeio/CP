@@ -100,3 +100,69 @@ Folgende Äquilibrierungszeit werden den Abbildungen entnommen:
     \caption{Energien und Temperatur für $n=16$ und $T(0)=1$ ohne Thermostat.}
     \label{fig:obs16}
 \end{figure}
+\FloatBarrier
+
+\subsection{Paarverteilungsfunktion $g(r)$}
+Die Paarverteilungsfunktion $g(r)$ gibt die Wahrscheinlichkeit an, ein Teilchen in einem Abstand $r$ zu finden.
+Sie wird hier für ein gegebenes Histogramm mit $n_\text{Bins}=200$ Bins berechnet.
+Das Histogramm diskretisiert die Radien $r$ von $0$ bis $L/2$.
+\\
+Die Funktion \texttt{calcPairCorrelation} in \texttt{A1.cpp} berechnet die Paarverteilungsfunktion aus dem Histogramm für jeden Zeitschritt.
+Nach der Messung wird die Paarverteilungsfunktion über die Zeit gemittelt.
+\\
+
+Die Paarverteilung wird für ein $N=8 \cdot 8 = 64$ - Teilchensystem für drei Starttemperaturen $T=0.01, 1, 100$ untersucht.
+Das System wird für $n_\text{equi}=2000$ Schritte äquilibriert und anschließend die Messung für $n_\text{meas}=10^4$ Schritte durchgeführt.
+Die Schrittweite $dt=0.01$ wird für die Temperaturen $T=0.01, 1$ verwendet.
+Für höhere Temperaturen wird die Schrittweite $dt=0.001$ verwendet, da das System sonst instabil wird.
+
+%TODO
+In Abbildung \ref{fig:g_001}, \ref{fig:g_1}, \ref{fig:g_100} ist die Paarverteilungsfunktion für die jeweiligen Anfangstemperaturen dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/g_c)_T001.pdf}
+    \caption{Paarverteilungsfunktion für $T(0)=0.01$.}
+    \label{fig:g_001}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/g_c)_T1.pdf}
+    \caption{Paarverteilungsfunktion für $T(0)=1$.}
+    \label{fig:g_1}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/g_c)_T100.pdf}
+    \caption{Paarverteilungsfunktion für $T(0)=100$.}
+    \label{fig:g_100}
+\end{figure}
+\FloatBarrier
+Die Abbildungen \ref{fig:obs_001}, \ref{fig:obs_1}, \ref{fig:obs_100} zeigen die Energien und Temperaturen in Abhängigkeit der Zeit.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/obs_c)_T001.pdf}
+    \caption{Energien und Temperatur für $T(0)=0.01$.}
+    \label{fig:obs_001}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/obs_c)_T1.pdf}
+    \caption{Energien und Temperatur für $T(0)=1$.}
+    \label{fig:obs_1}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{content/plots/obs_c)_T100.pdf}
+    \caption{Energien und Temperatur für $T(0)=100$.}
+    \label{fig:obs_100}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Isokinetisches Thermostat}
+Die Simulation wird nun mit isokinetischem Thermostat durchgeführt.
+Dazu wird die Funktion \texttt{IsokinThermostat::rescale} in \texttt{A1.cpp} implementiert, welche die Geschwindigkeiten der Teilchen nach \autoref{eq:isokin} skaliert.
+Die Temperatur wird also konstant gehalten.
+\\
+Es handelt sich um das bereits bekannte Teilchensystem mit Temperatur $T(0)=0.01$.
+Zuerst wird die Energie in der Äquilibrierungsphase untersucht.

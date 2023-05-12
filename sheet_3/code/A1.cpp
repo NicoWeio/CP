@@ -562,39 +562,40 @@ int main(void) {
     NoThermostat noThermo;
     IsokinThermostat isoThermo;
 
-    const uint particlesPerRow = 4;
+    const uint particlesPerRow = 8;
     const uint N = particlesPerRow * particlesPerRow;
     const double L = 2 * particlesPerRow * sigma;
 
-    const int numBins = 1000;
+    const int numBins = 200;
 
     // b) Equilibration test
-    {
-        const double T = 1;     // T(0)
-        const double dt = 0.01;
-        const uint steps_meas = 1000;
-
-        MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        cout << "++ MD init complete" << endl;
-
-        md.measure(dt, steps_meas).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
-        cout << "++ MD measure complete" << endl;
-    }
-
-    exit(0);
+    //{
+    //    const double T = 1;     // T(0)
+    //    const double dt = 0.01;
+    //    const uint steps_meas = 1000;
+//
+    //    MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
+    //    cout << "++ MD init complete" << endl;
+//
+    //    md.measure(dt, steps_meas).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");
+    //    cout << "++ MD measure complete" << endl;
+    //}
 
     // c) Pair correlation function
-    string TstringVec[3] = {"0.01", "1", "100"};
+    //string TstringVec[3] = {"0.01", "1", "100"};
+    string TstringVec[1] = {"100"};
     for (auto &Tstring : TstringVec) {
         const double T = stod(Tstring);
-        const double dt = 1;        // TODO
-        const uint equiSteps = 200; // TODO
-        const uint steps = 1;       // TODO
+        const double dt = 0.001;        // TODO
+        const uint equiSteps = 2000; // TODO
+        const uint steps = 10000;       // TODO
 
         MD md(L, N, particlesPerRow, T, LJ, noThermo, numBins);
-        cout << "++ MD equilibrate start" << endl;
+        cout << "++ MD equilibrate start for T = " << Tstring << endl;
         md.equilibrate(dt, equiSteps);
-        /*TODO*/
+        cout << "++ MD measure start for T = " << Tstring << endl;
+
+        md.measure(dt, steps).save("build/b)set.tsv", "build/b)g.tsv", "build/b)r.tsv");//("build/c)set_" + Tstring + ".tsv", "build/c)g_" + Tstring + ".tsv", "build/c)r_" + Tstring + ".tsv");
     }
 
     return 0;
