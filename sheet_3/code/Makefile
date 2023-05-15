@@ -5,7 +5,7 @@ all: build/A1
 #	python plot.py
 
 build/A1: A1.cpp | build
-	g++ -o build/A1 A1.cpp
+	g++ -O3 -o build/A1 A1.cpp
 	./build/A1
 
 build:
