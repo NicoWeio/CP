@@ -20,7 +20,7 @@ class Diffusion {
         // methods
         Diffusion(double D, double L, double dx);
         void solve(double dt, uint t_steps, string path_write);
-
+        
         // set initial conditions: must be called before solve()
         void set_initial_const(double a); // a) set initial condition to constant 
         void set_initial_delta(double x0, double a); // b) set initial condition to delta function with height "a"
@@ -47,11 +47,14 @@ void Diffusion::set_initial_const(double a){
 }
 
 void Diffusion::set_initial_delta(double x0, double a){
+    if (x0>L || x0<0){
+        cerr << "x0 musst be smaller than L!" << endl;
+        exit(1);
+        }
     // u_0 = delta(x-a) with height a
     u = new double[x_steps+1];
-    
     // get bin position of x0
-    uint pos = uint(x0/dx);
+    uint pos = uint(x0/dx); 
 
     for (uint i=0; i<=x_steps; i++){
         if (i==pos){
@@ -61,6 +64,26 @@ void Diffusion::set_initial_delta(double x0, double a){
             u[i] = 0.0;
         }
     }
+}
+
+void Diffusion::set_initial_heaviside(double x0, double a){
+    if (x0>L || x0<0){
+        cerr << "x0 musst be smaller than L!" << endl;
+        exit(1);
+        }
+
+    // theta(x-x0) * a, a:height
+    u = new double[x_steps+1];
+    uint pos = uint(x0/dx);
+
+    for (uint i=0; i<=pos; i++){
+        u[i] = 0;
+    }
+    
+    for (uint i=pos+1; i<=x_steps; i++){
+        u[i] = 1;
+    }
+
 }
 
 // solve the diffusion equation
@@ -80,13 +103,13 @@ void Diffusion::solve(double dt, uint t_steps, string path_write) {
     for (uint j=0; j<t_steps; j++) {
         // boundary conditions: reflective
 
-        for (uint i=1; i<x_steps-1; i++) {
+        for (uint i=1; i<=x_steps; i++) {
             u[i] = u[i] + C*(u[i+1] - 2*u[i] + u[i-1]);
         }
 
         // boundary conditions: reflective
         u[0] = u[1];
-        u[x_steps-1] = u[x_steps-2];
+        u[x_steps] = u[x_steps-1];
 
         // print progress
         cout << "Progress: " << j << "/" << t_steps << "\r";
@@ -136,6 +159,22 @@ int main() {
     dif_b_fast.set_initial_delta(0.5, 1);
     dif_b_fast.solve(dt, t_steps, "build/A2_b)fast.csv");
 
-    
+    // c)
+    // Delta-distribution u1 = delta(x-0.5)
+    dt = 0.00001;
+    t_steps = 10000;
+
+    Diffusion dif_u1(D, L, dx);
+    dif_u1.set_initial_delta(0.5, 1);
+    dif_u1.solve(dt, t_steps, "build/A2_c)u1.csv");
+
+    // Heaviside u2 = theta(x-0.5)
+    dt = 0.00001;
+    t_steps = 100000;
+
+    Diffusion dif_u2(D, L, dx);
+    dif_u2.set_initial_heaviside(0.5, 1);
+    dif_u2.solve(dt, t_steps, "build/A2_c)u2.csv");
+
     return 0;
 }
