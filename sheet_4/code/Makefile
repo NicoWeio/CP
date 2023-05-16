@@ -9,7 +9,7 @@ build/A1: A1.cpp | build
 	./build/A1
 
 build/A2: A2.cpp | build
-	g++ -O3 -o build/A2 A2.cpp
+	g++ -o build/A2 A2.cpp
 	./build/A2
 
 build:

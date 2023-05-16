@@ -21,8 +21,10 @@ class Diffusion {
         Diffusion(double D, double L, double dx);
         void solve(double dt, uint t_steps, string path_write);
 
+        // set initial conditions: must be called before solve()
         void set_initial_const(double a); // a) set initial condition to constant 
         void set_initial_delta(double x0, double a); // b) set initial condition to delta function with height "a"
+        void set_initial_heaviside(double x0, double a); //c) Heaviside function with height "a"
 };
 
 // constructor
@@ -70,24 +72,28 @@ void Diffusion::solve(double dt, uint t_steps, string path_write) {
     // constant
     double C = D*dt/(dx*dx);
 
-    // edges are isolating, no flow through them
-    u[0] = 0;
-    u[x_steps] = 0;
 
     ofstream outfile;
     outfile.open(path_write);
 
     // FTCS scheme
     for (uint j=0; j<t_steps; j++) {
-        for (uint i=1; i<x_steps; i++) {
-            u[i] = C*u[i-1] + (1-2*C)*u[i] + C*u[i+1];
+        // boundary conditions: reflective
+
+        for (uint i=1; i<x_steps-1; i++) {
+            u[i] = u[i] + C*(u[i+1] - 2*u[i] + u[i-1]);
         }
-        
+
+        // boundary conditions: reflective
+        u[0] = u[1];
+        u[x_steps-1] = u[x_steps-2];
+
+        // print progress
         cout << "Progress: " << j << "/" << t_steps << "\r";
         cout.flush();
 
-        outfile << j*dt;
         // write to csv file
+        outfile << j*dt;
         for (int i=0; i<=x_steps; i++) {
              outfile << "," << u[i];
         }
@@ -116,7 +122,7 @@ int main() {
     // b)
     // dt fullfills stability condition -> stable
     dt = 0.00001;
-    t_steps = 300;
+    t_steps = 1000;
 
     Diffusion dif_b_slow(D, L, dx);
     dif_b_slow.set_initial_delta(0.5, 1);
@@ -124,7 +130,7 @@ int main() {
 
     // dt too large -> unstable
     dt = 0.0001;
-    t_steps = 300;
+    t_steps = 80;
 
     Diffusion dif_b_fast(D, L, dx);
     dif_b_fast.set_initial_delta(0.5, 1);

@@ -18,13 +18,13 @@ def animate(df_data, n):
 
     # set axis limits
     ax.set_xlim(0, len(df.columns)-1)
-    ax.set_ylim(df.min().min(), df.max().max()+0.01)
+    ax.set_ylim(df.min().min()-0.01, df.max().max()+0.01)
 
     ax.set_xlabel("x")
     ax.set_ylabel("u(x,t)")
 
     # plot initial condition
-    line, = ax.plot(df.iloc[0, :], color="black")
+    line, = ax.plot(df.iloc[0, :], color="black", linewidth=2)
 
     # update function
     def update(frame):
@@ -44,21 +44,21 @@ if __name__=="__main__":
     # a)
     print("\nPlot a)")
     df_a = pd.read_csv("build/A2_a).csv", header=None)
-    animation = animate(df_a, n=40)
-    plt.show()
-    #animation.save("build/A2_a).mp4", dpi=300, fps=100)
+    animation = animate(df_a, n=50)
+    #plt.show()
+    animation.save("build/A2_a).mp4", dpi=300, fps=100)
 
     # b)
     # stable
     print("\nPlot b) small dt")
     df_b_slow = pd.read_csv("build/A2_b)slow.csv", header=None)
-    animation = animate(df_b_slow, n=1)
-    plt.show()
-    #animation.save("build/A2_b)slow.mp4", dpi=300, fps=30)
+    animation = animate(df_b_slow, n=3)
+    #plt.show()
+    animation.save("build/A2_b)slow.mp4", dpi=300, fps=100)
 
     #unstable
     print("\nPlot b) large dt")
     df_b_fast = pd.read_csv("build/A2_b)fast.csv", header=None)
     animation = animate(df_b_fast, n=1)
-    plt.show()
-    #animation.save("build/A2_b)fast.mp4", dpi=300, fps=30)
+    #plt.show()
+    animation.save("build/A2_b)fast.mp4", dpi=300, fps=10)
