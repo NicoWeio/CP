@@ -5,6 +5,8 @@ using namespace std;
 
 // class for the diffusion equation
 class Diffusion {
+    private:
+        void set_delta(double x0, double a);
     public:
         // parameters
         double D;
@@ -23,8 +25,9 @@ class Diffusion {
         
         // set initial conditions: must be called before solve()
         void set_initial_const(double a); // a) set initial condition to constant 
-        void set_initial_delta(double x0, double a); // b) set initial condition to delta function with height "a"
+        void set_initial_delta(double x0, double a); // b)c) set initial condition to delta function with height "a"
         void set_initial_heaviside(double x0, double a); //c) Heaviside function with height "a"
+        void set_initial_dirac_ridge(double x0, uint N); // c) Dirac ridge with N peaks at x0*n
 };
 
 // constructor
@@ -46,24 +49,29 @@ void Diffusion::set_initial_const(double a){
     }
 }
 
+// helper function to set delta peaks
+void Diffusion::set_delta(double x0, double a){ 
+    // get bin position of x0
+    uint pos = uint(x0/dx); 
+    
+    // set delta peak u_0 = delta(x-a) with height a
+    u[pos] = a;
+}
+
 void Diffusion::set_initial_delta(double x0, double a){
     if (x0>L || x0<0){
         cerr << "x0 musst be smaller than L!" << endl;
         exit(1);
         }
-    // u_0 = delta(x-a) with height a
+    
+    // initialize empty array
     u = new double[x_steps+1];
-    // get bin position of x0
-    uint pos = uint(x0/dx); 
-
     for (uint i=0; i<=x_steps; i++){
-        if (i==pos){
-            u[i] = a;
+        u[i] = 0.0;
         }
-        else{
-            u[i] = 0.0;
-        }
-    }
+
+    // set delta peak u_0 = delta(x-a) with height a
+    set_delta(x0, a);
 }
 
 void Diffusion::set_initial_heaviside(double x0, double a){
@@ -83,11 +91,34 @@ void Diffusion::set_initial_heaviside(double x0, double a){
     for (uint i=pos+1; i<=x_steps; i++){
         u[i] = 1;
     }
+}
 
+void Diffusion::set_initial_dirac_ridge(double x0, uint N){
+    if (x0>L || x0<0){
+        cerr << "x0 musst be smaller than L!" << endl;
+        exit(1);
+        }
+
+    // initialize empty array
+    u = new double[x_steps+1];
+    for (uint i=0; i<=x_steps; i++){
+        u[i] = 0;
+    }
+
+    // set delta peaks with height a=1/N
+    for (uint n=1; n<=N; n++){
+        set_delta(x0*n, 1.0/N);
+    }
 }
 
 // solve the diffusion equation
 void Diffusion::solve(double dt, uint t_steps, string path_write) {
+    // check if initial conditions are set
+    if (u == NULL) {
+        cerr << "Initial conditions not set!" << endl;
+        exit(1);
+    }
+
     // set parameters
     this->dt = dt;
     this->t_steps = t_steps;
@@ -176,5 +207,11 @@ int main() {
     dif_u2.set_initial_heaviside(0.5, 1);
     dif_u2.solve(dt, t_steps, "build/A2_c)u2.csv");
 
+    // Dirac ridge
+    dt = 0.000001;
+    t_steps = 20000;
+    Diffusion dif_u3(D, L, dx);
+    dif_u3.set_initial_dirac_ridge(0.1, 9);
+    dif_u3.solve(dt, t_steps, "build/A2_c)u3.csv");
     return 0;
 }

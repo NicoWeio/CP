@@ -7,7 +7,7 @@ def animate(df_data, n):
     # hold every n-th frame
     df = df_data.iloc[::n, :].copy()
 
-    # remove last column (line ends with ,)
+    # first column is time, split from dataframe
     t = df.iloc[:, 0].to_numpy()
     df.drop(df.columns[[0]], axis=1, inplace=True)
 
@@ -50,7 +50,7 @@ if __name__=="__main__":
     print("\nPlot a)")
     df_a = pd.read_csv("build/A2_a).csv", header=None)
     animation = animate(df_a, n=50)
-    plt.show()  # Get the current axes
+    plt.show()
     #animation.save("build/A2_a).mp4", dpi=300, fps=100)
 
     # b)
@@ -58,14 +58,14 @@ if __name__=="__main__":
     print("\nPlot b) small dt")
     df_b_slow = pd.read_csv("build/A2_b)slow.csv", header=None)
     animation = animate(df_b_slow, n=3)
-    plt.show()  # Get the current axes
+    plt.show()
     #animation.save("build/A2_b)slow.mp4", dpi=300, fps=100)
 
     #unstable
     print("\nPlot b) large dt")
     df_b_fast = pd.read_csv("build/A2_b)fast.csv", header=None)
     animation = animate(df_b_fast, n=1)
-    plt.show()  # Get the current axes
+    plt.show()
     #animation.save("build/A2_b)fast.mp4", dpi=300, fps=10)
 
     # c)
@@ -80,6 +80,12 @@ if __name__=="__main__":
     print("\nPlot c) u2")
     df_c_u2 = pd.read_csv("build/A2_c)u2.csv")
     animation = animate(df_c_u2, n=200)
-    ax = plt.show()  # Get the current axes
+    plt.show()
     #animation.save("build/A2_c)u2.mp4", dpi=300, fps=100)
 
+    # u3
+    print("\nPlot c) u3")
+    df_c_u3 = pd.read_csv("build/A2_c)u3.csv")
+    animation = animate(df_c_u3, n=12)
+    plt.show()
+    #animation.save("build/A2_c)u3.mp4", dpi=300, fps=100)
