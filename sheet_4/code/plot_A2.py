@@ -73,8 +73,8 @@ if __name__=="__main__":
     print("\nPlot c) u1")
     df_c_u1 = pd.read_csv("build/A2_c)u1.csv")
     animation = animate(df_c_u1, n=10)
-    #animation.save("build/A2_c)u1.mp4", dpi=300, fps=100)
     plt.show()
+    #animation.save("build/A2_c)u1.mp4", dpi=300, fps=100)
 
     # u2
     print("\nPlot c) u2")
