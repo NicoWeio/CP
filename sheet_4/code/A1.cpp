@@ -152,8 +152,8 @@ void Poisson2d::gauss_seidel(double delta, double kappa, std::string output_path
 void Poisson2d::calc_E() {
     for (int i = 1; i < xsize - 1; i++) {
         for (int j = 1; j < ysize - 1; j++) {
-            E_x[i][j] = (phi[i + 1][j] - phi[i - 1][j]) / (2 * delta);
-            E_y[i][j] = (phi[i][j + 1] - phi[i][j - 1]) / (2 * delta);
+            E_x[i][j] = - (phi[i + 1][j] - phi[i - 1][j]) / (2 * delta);
+            E_y[i][j] = - (phi[i][j + 1] - phi[i][j - 1]) / (2 * delta);
         }
     }
 }
@@ -176,7 +176,7 @@ double Poisson2d::calc_error() {
 int main() {
     // given constants
     double delta = 0.05;
-    double kappa = 0.00001;
+    double kappa = 1.0E-5;
     double L = 1.0;
 
     // b)

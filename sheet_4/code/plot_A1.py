@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pathlib import Path
 
-# path_base = "build/A1_b_"
+path_base = "build/A1_b_"
 # path_base = "build/A1_c_"
 # path_base = "build/A1_d_"
-path_base = "build/A1_e_"
+# path_base = "build/A1_e_"
 
 # %% read data
 txt = Path(path_base + "phi.txt").read_text()
@@ -56,11 +56,14 @@ data_E = np.swapaxes(data_E, 1, 2)
 
 # %% plot
 fig, ax = plt.subplots()
+absmax = np.max(np.abs(data_phi))
 im = ax.imshow(
     data_phi[0],
     # vmin=0, vmax=1,
-    vmin=np.min(data_phi), vmax=np.max(data_phi),
-    cmap="hot",
+    # vmin=np.min(data_phi), vmax=np.max(data_phi),
+    vmin=-absmax, vmax=absmax,
+    # cmap="hot",
+    cmap="seismic",
     origin="lower",
 )
 
@@ -68,15 +71,22 @@ im = ax.imshow(
 # show every n-th vector
 n = 1
 x, y = np.meshgrid(np.arange(0, data_E.shape[1]), np.arange(0, data_E.shape[2]))
-quiver = ax.quiver(x[::n, ::n], y[::n, ::n], data_E[0, ::n, ::n, 0], data_E[0, ::n, ::n, 1], color="white")
+quiver = ax.quiver(x[::n, ::n], y[::n, ::n], data_E[0, ::n, ::n, 0], data_E[0, ::n, ::n, 1], color="black")
+plt.colorbar(im)
 
 
 def animate(i):
-    fig.suptitle(f"t = {i}")
+    fig.suptitle(f"t = {i+1}")  # NOTE: the initial state (t=0) is not actually included
     im.set_data(data_phi[i])
     quiver.set_UVC(data_E[i, ::n, ::n, 0], data_E[i, ::n, ::n, 1])
     return im
 
 
+# %% plot final state
+# animate(len(data_phi) - 1)
+# plt.savefig(path_base + "final.png")
+
+# %% animate
 ani = FuncAnimation(fig, animate, frames=len(data_phi), interval=100, blit=False)
-plt.show()
+# plt.show()
+ani.save(path_base + "anim.mp4", dpi=300)
