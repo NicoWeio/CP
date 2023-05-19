@@ -179,9 +179,40 @@ int main() {
     double kappa = 0.00001;
     double L = 1.0;
 
-    Poisson2d poisson(L, L, delta);
-    poisson.set_phi(1.0, 0.0, 0.0, 0.0, 0.0);
-    poisson.add_charge(0.5, 0.5, 1.0);
-    poisson.gauss_seidel(delta, kappa, "build/A1_b");
+    // b)
+    {
+        Poisson2d poisson(L, L, delta);
+        poisson.set_phi(1.0, 0.0, 0.0, 0.0, 0.0);
+        // rho == 0 is default
+        poisson.gauss_seidel(delta, kappa, "build/A1_b");
+    }
+
+    // c)
+    {
+        Poisson2d poisson(L, L, delta);
+        poisson.set_phi(1.0, 0.0, 0.0, 0.0, 1.0);
+        // rho == 0 is default
+        poisson.gauss_seidel(delta, kappa, "build/A1_c");
+        // TODO: compare to analytical solution
+    }
+
+    // d)
+    {
+        Poisson2d poisson(L, L, delta);
+        poisson.set_phi(0.0, 0.0, 0.0, 0.0, 0.0); // TODO: inner == 0.0 correct?
+        poisson.add_charge(0.5, 0.5, 1.0);
+        poisson.gauss_seidel(delta, kappa, "build/A1_d");
+    }
+
+    // e)
+    {
+        Poisson2d poisson(L, L, delta);
+        poisson.set_phi(0.0, 0.0, 0.0, 0.0, 0.0); // TODO: inner == 0.0 correct?
+        poisson.add_charge(0.25, 0.25, +1.0);
+        poisson.add_charge(0.75, 0.75, +1.0);
+        poisson.add_charge(0.25, 0.75, -1.0);
+        poisson.add_charge(0.75, 0.25, -1.0);
+        poisson.gauss_seidel(delta, kappa, "build/A1_e");
+    }
     return 0;
 }

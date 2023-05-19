@@ -11,7 +11,10 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pathlib import Path
 
-path_base = "build/A1_b_"
+# path_base = "build/A1_b_"
+# path_base = "build/A1_c_"
+# path_base = "build/A1_d_"
+path_base = "build/A1_e_"
 
 # %% read data
 txt = Path(path_base + "phi.txt").read_text()
