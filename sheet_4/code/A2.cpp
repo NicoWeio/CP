@@ -5,28 +5,29 @@ using namespace std;
 
 // class for the diffusion equation
 class Diffusion {
-    private:
-        void set_delta(double x0, double a);
-    public:
-        // parameters
-        double D;
-        double L;
-        double dx;
-        double dt;
-        uint t_steps;
-        uint x_steps;
-        double *u; // declare 1d array u
+  private:
+    void set_delta(double x0, double a);
 
-        // methods
-        Diffusion(double D, double L, double dx);
-        ~Diffusion();
-        void solve(double dt, uint t_steps, string path_write);
-        
-        // set initial conditions: must be called before solve()
-        void set_initial_const(double a); // a) set initial condition to constant 
-        void set_initial_delta(double x0, double a); // b)c) set initial condition to delta function with height "a"
-        void set_initial_heaviside(double x0, double a); //c) Heaviside function with height "a"
-        void set_initial_dirac_ridge(double x0, uint N); // c) Dirac ridge with N peaks at x0*n
+  public:
+    // parameters
+    double D;
+    double L;
+    double dx;
+    double dt;
+    uint t_steps;
+    uint x_steps;
+    double *u; // declare 1d array u
+
+    // methods
+    Diffusion(double D, double L, double dx);
+    ~Diffusion();
+    void solve(double dt, uint t_steps, string path_write);
+
+    // set initial conditions: must be called before solve()
+    void set_initial_const(double a);                // a) set initial condition to constant
+    void set_initial_delta(double x0, double a);     // b)c) set initial condition to delta function with height "a"
+    void set_initial_heaviside(double x0, double a); // c) Heaviside function with height "a"
+    void set_initial_dirac_ridge(double x0, uint N); // c) Dirac ridge with N peaks at x0*n
 };
 
 // constructor
@@ -35,83 +36,83 @@ Diffusion::Diffusion(double D, double L, double dx) {
     this->D = D;
     this->L = L;
     this->dx = dx;
-    this->x_steps = uint(L/dx);
+    this->x_steps = uint(L / dx);
 }
 
-Diffusion::~Diffusion(){
+Diffusion::~Diffusion() {
     // clear memory
     delete[] u;
 }
 
 // set inital conditions
-void Diffusion::set_initial_const(double a){
-    // u_0 = a 
-    u = new double[x_steps+1];
+void Diffusion::set_initial_const(double a) {
+    // u_0 = a
+    u = new double[x_steps + 1];
 
-    for (uint i=0; i<=x_steps; i++) {
+    for (uint i = 0; i <= x_steps; i++) {
         u[i] = a;
     }
 }
 
 // helper function to set delta peaks
-void Diffusion::set_delta(double x0, double a){ 
+void Diffusion::set_delta(double x0, double a) {
     // get bin position of x0
-    uint pos = uint(x0/dx); 
-    
+    uint pos = uint(x0 / dx);
+
     // set delta peak u_0 = delta(x-a) with height a
     u[pos] = a;
 }
 
-void Diffusion::set_initial_delta(double x0, double a){
-    if (x0>L || x0<0){
+void Diffusion::set_initial_delta(double x0, double a) {
+    if (x0 > L || x0 < 0) {
         cerr << "x0 musst be smaller than L!" << endl;
         exit(1);
-        }
-    
+    }
+
     // initialize empty array
-    u = new double[x_steps+1];
-    for (uint i=0; i<=x_steps; i++){
+    u = new double[x_steps + 1];
+    for (uint i = 0; i <= x_steps; i++) {
         u[i] = 0.0;
-        }
+    }
 
     // set delta peak u_0 = delta(x-a) with height a
     set_delta(x0, a);
 }
 
-void Diffusion::set_initial_heaviside(double x0, double a){
-    if (x0>L || x0<0){
+void Diffusion::set_initial_heaviside(double x0, double a) {
+    if (x0 > L || x0 < 0) {
         cerr << "x0 musst be smaller than L!" << endl;
         exit(1);
-        }
+    }
 
     // theta(x-x0) * a, a:height
-    u = new double[x_steps+1];
-    uint pos = uint(x0/dx);
+    u = new double[x_steps + 1];
+    uint pos = uint(x0 / dx);
 
-    for (uint i=0; i<=pos; i++){
+    for (uint i = 0; i <= pos; i++) {
         u[i] = 0;
     }
-    
-    for (uint i=pos+1; i<=x_steps; i++){
+
+    for (uint i = pos + 1; i <= x_steps; i++) {
         u[i] = 1;
     }
 }
 
-void Diffusion::set_initial_dirac_ridge(double x0, uint N){
-    if (x0>L || x0<0){
+void Diffusion::set_initial_dirac_ridge(double x0, uint N) {
+    if (x0 > L || x0 < 0) {
         cerr << "x0 musst be smaller than L!" << endl;
         exit(1);
-        }
+    }
 
     // initialize empty array
-    u = new double[x_steps+1];
-    for (uint i=0; i<=x_steps; i++){
+    u = new double[x_steps + 1];
+    for (uint i = 0; i <= x_steps; i++) {
         u[i] = 0;
     }
 
     // set delta peaks with height a=1/N
-    for (uint n=1; n<=N; n++){
-        set_delta(x0*n, 1.0/N);
+    for (uint n = 1; n <= N; n++) {
+        set_delta(x0 * n, 1.0 / N);
     }
 }
 
@@ -128,54 +129,50 @@ void Diffusion::solve(double dt, uint t_steps, string path_write) {
     this->t_steps = t_steps;
 
     // constant
-    double C = D*dt/(dx*dx);
-
+    double C = D * dt / (dx * dx);
 
     ofstream outfile;
     outfile.open(path_write);
 
     // FTCS scheme
-    for (uint j=0; j<t_steps; j++) {
+    for (uint j = 0; j < t_steps; j++) {
         // boundary conditions: reflective
 
-        for (uint i=1; i<=x_steps; i++) {
-            u[i] = u[i] + C*(u[i+1] - 2*u[i] + u[i-1]);
+        for (uint i = 1; i <= x_steps; i++) {
+            u[i] = u[i] + C * (u[i + 1] - 2 * u[i] + u[i - 1]);
         }
 
         // boundary conditions: reflective
         u[0] = u[1];
-        u[x_steps] = u[x_steps-1];
+        u[x_steps] = u[x_steps - 1];
 
         // print progress
         cout << "Progress: " << j << "/" << t_steps << "\r";
         cout.flush();
 
         // write to csv file
-        outfile << j*dt;
-        for (int i=0; i<=x_steps; i++) {
-             outfile << "," << u[i];
+        outfile << j * dt;
+        for (int i = 0; i <= x_steps; i++) {
+            outfile << "," << u[i];
         }
         outfile << endl;
-
     }
-    
+
     outfile.close();
 }
-
 
 int main() {
     double D = 1;
     const double L = 1.0;
     double dx = 0.01;
-    
+
     // a)
     double dt = 0.00001;
     uint t_steps = 40000;
-    
+
     Diffusion dif_a(D, L, dx);
     dif_a.set_initial_const(1);
     dif_a.solve(dt, t_steps, "build/A2_a).csv");
-    
 
     // b)
     // dt fullfills stability condition -> stable
