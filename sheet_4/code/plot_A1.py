@@ -84,7 +84,7 @@ def animate(i):
 
 # %% plot final state
 animate(len(data_phi) - 1)
-plt.savefig(path_base + "final.png")
+plt.savefig(path_base + "final.pdf")
 
 # %% animate
 ani = FuncAnimation(fig, animate, frames=len(data_phi), interval=100, blit=False)

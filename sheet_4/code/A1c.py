@@ -46,6 +46,6 @@ def plot_phi(my_phi):
     return fig
 
 
-plot_phi(phi).savefig("build/A1_c_analytical.png")
+plot_phi(phi).savefig("build/A1_c_analytical.pdf")
 
 # %%

@@ -1,8 +1,8 @@
 all: build/main.pdf
 
 # hier Python-Skripte:
-#plot: FORCE
-#	cd code && make
+plot: FORCE
+	cd code && make
 
 # hier weitere Abhängigkeiten für build/main.pdf deklarieren:
 #build/main.pdf: plot
