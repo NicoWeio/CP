@@ -21,7 +21,7 @@ class Poisson2d {
     ~Poisson2d();
     void set_phi(double inner, double left, double right, double bottom, double top);
     void add_charge(double x, double y, double q);
-    void gauss_seidel(double delta, double kappa, std::string output_path);
+    void gauss_seidel(double delta, double kappa, std::string output_path_base);
 };
 
 Poisson2d::Poisson2d(double L_x, double L_y, double delta)
@@ -32,6 +32,8 @@ Poisson2d::Poisson2d(double L_x, double L_y, double delta)
     phi = new double *[xsize];
     phi_old = new double *[xsize];
     rho = new double *[xsize];
+    E_x = new double *[xsize];
+    E_y = new double *[ysize];
 
     for (int i = 0; i < xsize; i++) {
         // NOTE: These are suppposed to be initialized using set_phi
@@ -45,7 +47,7 @@ Poisson2d::Poisson2d(double L_x, double L_y, double delta)
         }
 
         E_x[i] = new double[xsize];
-        E_y[i] = new double[xsize];
+        E_y[i] = new double[ysize];
         // fill E_x, E_y with zeroes
         for (int j = 0; j < ysize; j++) {
             E_x[i][j] = 0.0;
@@ -91,12 +93,13 @@ void Poisson2d::add_charge(double x, double y, double q) {
     rho[x_index][y_index] += q;
 }
 
-void Poisson2d::gauss_seidel(double delta, double kappa, std::string output_path) {
+void Poisson2d::gauss_seidel(double delta, double kappa, std::string output_path_base) {
     // kappa: stop criteria
     // relative error between to time steps
     double error;
 
-    std::ofstream output_file(output_path);
+    std::ofstream output_file_phi(output_path_base + "_phi.txt");
+    std::ofstream output_file_E(output_path_base + "_E.txt");
 
     unsigned int iter = 0;
     const unsigned int max_iter = 1000;
@@ -108,25 +111,32 @@ void Poisson2d::gauss_seidel(double delta, double kappa, std::string output_path
             }
         }
 
+        // update phi
         for (int i = 1; i < xsize - 1; i++) {
             for (int j = 1; j < ysize - 1; j++) {
                 phi[i][j] = 0.25 * (phi[i + 1][j] + phi[i][j + 1] + phi[i][j - 1] + phi[i - 1][j]) + 0.25 * delta * delta * rho[i][j];
             }
         }
 
+        // update E
+        calc_E();
+
         // calc relative change of euclidean distance between phi and phi_old
         error = calc_error();
         std::cout << "Error: " << error << std::endl;
 
-        // write a line to our csv file, e.g.
-        // 1,2,3|4,5,6|7,8,9
+        // phi write a line to our csv file, e.g.
+        // 1,2,3,|4,5,6,|7,8,9,|
         for (int i = 0; i < xsize; i++) {
-            for (int j = 0; j < ysize - 1; j++) {
-                output_file << phi[i][j] << ",";
+            for (int j = 0; j < ysize; j++) {
+                output_file_phi << phi[i][j] << ",";
+                output_file_E << E_x[i][j] << ";" << E_y[i][j] << ",";
             }
-            output_file << phi[i][ysize - 1] << "|";
+            output_file_phi << "|";
+            output_file_E << "|";
         }
-        output_file << std::endl;
+        output_file_phi << std::endl;
+        output_file_E << std::endl;
 
         if (iter++ > max_iter) {
             std::cout << "Max iterations reached" << std::endl;
@@ -135,7 +145,8 @@ void Poisson2d::gauss_seidel(double delta, double kappa, std::string output_path
 
     } while (error > kappa);
 
-    output_file.close();
+    output_file_phi.close();
+    output_file_E.close();
 }
 
 void Poisson2d::calc_E() {
@@ -171,6 +182,6 @@ int main() {
     Poisson2d poisson(L, L, delta);
     poisson.set_phi(1.0, 0.0, 0.0, 0.0, 0.0);
     poisson.add_charge(0.5, 0.5, 1.0);
-    poisson.gauss_seidel(delta, kappa, "build/A1_b.txt");
+    poisson.gauss_seidel(delta, kappa, "build/A1_b");
     return 0;
 }
