@@ -10,12 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pathlib import Path
+import sys
 
-path_base = "build/A1_b_"
-# path_base = "build/A1_c_"
-# path_base = "build/A1_d_"
-# path_base = "build/A1_e_"
-
+if len(sys.argv) > 1:
+    path_base = f"build/A1_{sys.argv[1]}_"
+else:
+    raise ValueError("Bitte Aufgabenteil spezifizieren: b/c/d/e")
 # %% read data
 txt = Path(path_base + "phi.txt").read_text()
 data_phi = [
@@ -83,8 +83,8 @@ def animate(i):
 
 
 # %% plot final state
-# animate(len(data_phi) - 1)
-# plt.savefig(path_base + "final.png")
+animate(len(data_phi) - 1)
+plt.savefig(path_base + "final.png")
 
 # %% animate
 ani = FuncAnimation(fig, animate, frames=len(data_phi), interval=100, blit=False)
