@@ -49,9 +49,20 @@ data_E = [
 # convert to numpy array
 data_E = np.array(data_E)
 
+# %% fix x/y axes
+data_phi = np.swapaxes(data_phi, 1, 2)
+data_E = np.swapaxes(data_E, 1, 2)
+# NOTE: We also need to specify the origin="lower" parameter in imshow() to fix the axes
+
 # %% plot
 fig, ax = plt.subplots()
-im = ax.imshow(data_phi[0], vmin=0, vmax=1, cmap="hot")
+im = ax.imshow(
+    data_phi[0],
+    # vmin=0, vmax=1,
+    vmin=np.min(data_phi), vmax=np.max(data_phi),
+    cmap="hot",
+    origin="lower",
+)
 
 # visualize E as vector field
 # show every n-th vector
