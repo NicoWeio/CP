@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <Eigen/Dense>
-
+#include <math.h>
 
 class Poisson2d{
 private:
@@ -11,12 +11,12 @@ private:
     double** phi_old;
     double** rho;
 
-    void set_initial_conditions();
     double calc_error();
 
 public:
     Poisson2d(int xsize, int ysize);
     ~Poisson2d();
+    void set_initial_conditions();
     void gauss_seidel(double delta, double kappa);
 };
     
@@ -25,14 +25,15 @@ Poisson2d::Poisson2d(int xsize, int ysize){
     this->xsize = xsize;
     this->ysize = ysize;
 
-    // create 2d array
+    // create 2d arrays: phi_n+1, phi_n, rho
     phi = new double*[xsize];
     phi_old = new double*[xsize];
-
+    rho = new double*[xsize];
 
     for (int i = 0; i<xsize; i++){
         phi[i] = new double[ysize];
         phi_old[i] = new double[ysize];
+        rho = new double*[xsize];
     }
 
     // TODO: set_initial_conditions for phi and rho
@@ -44,10 +45,12 @@ Poisson2d::~Poisson2d(){
     for (int i = 0; i<xsize; i++){
         delete[] phi[i];
         delete[] phi_old[i];
-
+        delete[] rho[i];
     }
+
     delete[] phi;
     delete[] phi_old;
+    delete[] rho;
 }
 
 void Poisson2d::set_initial_conditions(){
@@ -74,17 +77,29 @@ void Poisson2d::gauss_seidel(double delta, double kappa){
             }
         }
 
-    // TODO: calc relative error
+    // calc relative change of euclidean distance between phi and phi_old
     error = calc_error();
-
+    std::cout << "Error: " << error << std::endl;
     } while (error>kappa);
-    
-
 }
 
 double Poisson2d::calc_error(){
-    //TODO: calc error
-    return 0.0;
+    // calc rel error between phi and phi_old
+    // distance measure: euclidean distance
+
+    double norm_phi = 0.0;
+    double norm_phiold = 0.0;
+
+    for (int i = 0; i<xsize; i++){
+        for (int j = 0; j<ysize; j++){
+            norm_phi += phi[i][j]*phi[i][j];
+            norm_phiold += phi_old[i][j]*phi_old[i][j];
+        }
+    }
+    norm_phi = std::sqrt(norm_phi);
+    norm_phiold = std::sqrt(norm_phiold);
+
+    return std::abs(norm_phi-norm_phiold) / norm_phi;
 }
 
 
