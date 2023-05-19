@@ -15,12 +15,11 @@ class Diffusion {
         double dt;
         uint t_steps;
         uint x_steps;
-        string initial;
-        // initialize array u
-        double *u;
+        double *u; // declare 1d array u
 
         // methods
         Diffusion(double D, double L, double dx);
+        ~Diffusion();
         void solve(double dt, uint t_steps, string path_write);
         
         // set initial conditions: must be called before solve()
@@ -37,6 +36,11 @@ Diffusion::Diffusion(double D, double L, double dx) {
     this->L = L;
     this->dx = dx;
     this->x_steps = uint(L/dx);
+}
+
+Diffusion::~Diffusion(){
+    // clear memory
+    delete[] u;
 }
 
 // set inital conditions
