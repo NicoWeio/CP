@@ -107,6 +107,15 @@ void Wave2D::update_u_np1(){
             u_np1[i][j] = c2dt2* ( (u_n[i+1][j] - 2*u_n[i][j] + u_n[i-1][j])/dx2 + (u_n[i][j+1] - 2*u_n[i][j] + u_n[i][j-1])/dy2) + 2*u_n[i][j] - u_nm1[i][j];    
         }
     }
+    // boundaries: fixed
+    for (int i = 0; i < xsize; i++){
+        u_np1[i][0] = 0.0;
+        u_np1[i][ysize-1] = 0.0;
+    }
+    for (int j = 0; j < ysize; j++){
+        u_np1[0][j] = 0.0;
+        u_np1[xsize-1][j] = 0.0;
+    }
 }
 
 void Wave2D::swap_u(){
@@ -170,7 +179,7 @@ int main(){
     double dy = dx;
 
     double dt = 0.00001;
-    int n = 300000;
+    int n = 200000;
 
     // create Wave2D object
     Wave2D wave(a, b, dx, dy);

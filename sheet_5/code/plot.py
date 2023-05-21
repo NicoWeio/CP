@@ -31,6 +31,7 @@ fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
 im = ax.imshow(data_u[0], origin="lower", cmap="hot")
 ax.set_title(f"Time step: 0", fontsize=10, loc="left")
 ax.axis("off")
+fig.colorbar(im, ax=ax)
 
 def animate(i):
     print(f"Create frame number {i}", end="\r")
