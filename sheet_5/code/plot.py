@@ -28,7 +28,7 @@ print("Shape of data: ", data_u.shape)
 
 # create 2d heatmap animation with shape of data_u = (t, x, y)
 fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
-im = ax.imshow(data_u[0], origin="lower", cmap="hot")
+im = ax.imshow(data_u[0], origin="lower", cmap="RdGy")
 ax.set_title(f"Time step: 0", fontsize=10, loc="left")
 ax.axis("off")
 fig.colorbar(im, ax=ax)
@@ -42,4 +42,4 @@ def animate(i):
 
 anim = FuncAnimation(fig, animate, frames=data_u.shape[0], interval=100)
 plt.show()
-anim.save("build/A2_animation.mp4", writer="ffmpeg", fps=30)
+anim.save("build/A2_animation.mp4", writer="ffmpeg", fps=60)
