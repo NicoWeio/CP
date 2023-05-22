@@ -5,9 +5,6 @@
 class Wave2D
 {
 private:
-
-    // boundary conditions: rectangular membrane
-
     // wave speed
     const double c = 1.0;
 
@@ -77,13 +74,23 @@ void Wave2D::init_u(){
         u_nm1[i] = new double[ysize];
     }
 
-    // set initial conditions e)
+    // set initial conditions
     for (int i = 0; i < xsize; i++){
         for (int j = 0; j < ysize; j++){
             // x = dx * i
             // y = dy * j
-            u_n[i][j] = sin(M_PI*dx*i/a)*sin(2*M_PI*dy*j/b);
-            u_nm1[i][j] = 0.0;
+
+            // calc u^1 with given u(x,y,t=0) = sin(pi*x/a)*sin(2*pi*y/b)
+            u_nm1[i][j] = sin(M_PI*dx*i/a)*sin(2*M_PI*dy*j/b);
+
+            // calc u^0 with given du/dt(x,y,t=0) = 0
+            if (i == 0 || i == xsize-1 || j == 0 || j == ysize-1){
+                u_n[i][j] = u_nm1[i][j]; // fixed boundaries
+            }
+            else{
+                u_n[i][j] = c2dt2/2 * ( (u_nm1[i+1][j] - 2*u_nm1[i][j] + u_nm1[i-1][j])/dx2 + (u_nm1[i][j+1] - 2*u_nm1[i][j] + u_nm1[i][j-1])/dy2)
+                            + u_nm1[i][j] + 2*dt*0; // du/dt|t=0 = 0
+            }
         }
     }
 }
@@ -109,12 +116,12 @@ void Wave2D::update_u_np1(){
     }
     // boundaries: fixed
     for (int i = 0; i < xsize; i++){
-        u_np1[i][0] = 0.0;
-        u_np1[i][ysize-1] = 0.0;
+        u_np1[i][0] = u_n[i][0];
+        u_np1[i][ysize-1] = u_n[i][ysize-1];
     }
     for (int j = 0; j < ysize; j++){
-        u_np1[0][j] = 0.0;
-        u_np1[xsize-1][j] = 0.0;
+        u_np1[0][j] = u_n[0][j];
+        u_np1[xsize-1][j] = u_n[xsize-1][j];
     }
 }
 
@@ -178,8 +185,8 @@ int main(){
     double dx = 0.01; // 1.0;
     double dy = dx;
 
-    double dt = 0.00001;
-    int n = 200000;
+    double dt = 0.000003;
+    int n = 400000;
 
     // create Wave2D object
     Wave2D wave(a, b, dx, dy);
