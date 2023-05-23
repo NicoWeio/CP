@@ -1,11 +1,13 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 path = "build/u_n.csv"
 
+# read in data to numpy array with shape (t, x, y)
 print(f'Reading data from "{path}" ...')
 txt = Path(path).read_text()
 data_u = [
@@ -18,13 +20,13 @@ data_u = [
     ]
     for row in txt.strip().split("\n")
 ]
-# convert to numpy array
 data_u = np.array(data_u)
 #data_u = np.transpose(data_u, axes=(0, 2, 1)) #(t, x, y)
-# take only every 10th time step
-#data_u = data_u[::20]
 
 print("Shape of data: ", data_u.shape)
+box_height = data_u.shape[1]-1
+box_width = data_u.shape[2]-1
+
 
 # create 2d heatmap animation with shape of data_u = (t, x, y)
 fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
@@ -33,10 +35,18 @@ ax.set_title(f"Time step: 0", fontsize=10, loc="left")
 ax.axis("off")
 fig.colorbar(im, ax=ax)
 
+# create box around that shows boundaries
+rect = patches.Rectangle((0, 0), 1.5, 1.0, linewidth=2, edgecolor='k', facecolor='none')
+ax.add_patch(rect)
+
+# Animation
 def animate(i):
     print(f"Create frame number {i}", end="\r")
     im.set_data(data_u[i])
     ax.set_title(f"Time step: {i}", fontsize=10, loc="left")
+    rect.set_width(box_width)
+    rect.set_height(box_height)
+
     return im
 
 
