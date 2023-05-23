@@ -57,6 +57,7 @@ Wave2D::Wave2D(double a, double b, double dx, double dy){
     // grid size
     xsize = int(a / dx);
     ysize = int(b / dy);
+    std::cout << "\nA2) 2D Wave Equation" << std::endl;
     std::cout << "Rectangle with a = " << a << ", b = " << b << "\n(Resolution: ["<< xsize << ", " << ysize << "])" <<"\n";
 
     init_u();

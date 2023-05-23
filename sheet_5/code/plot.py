@@ -52,4 +52,4 @@ def animate(i):
 
 anim = FuncAnimation(fig, animate, frames=data_u.shape[0], interval=100)
 plt.show()
-anim.save("build/A2_animation.mp4", writer="ffmpeg", fps=60)
+#anim.save("build/A2_animation.mp4", writer="ffmpeg", fps=60)
