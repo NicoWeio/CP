@@ -38,19 +38,20 @@ private:
      
 
 public:
-    Schroedinger1D(double xmin, double xmax, double dx);
+    Schroedinger1D(double xmin, double xmax, double dx, double dt);
     void init_psi_gauss(double x0, double sigma);
-    void run(double dt, int N, std::string path);
+    void run(int N, std::string path);
 };
 
-Schroedinger1D::Schroedinger1D(double xmin, double xmax, double dx){
+Schroedinger1D::Schroedinger1D(double xmin, double xmax, double dx, double dt){
+    this->dt = dt;
     this->dx = dx;
     this->dx2 = dx*dx;
 
     this->x_min = xmin;
     this->x_max = xmax;
 
-    xsize = int((x_max-x_min)/dx);
+    this->xsize = int((x_max-x_min)/dx);
     std::cout << "\nA1) 1D Schrödinger Equation" << std::endl;
     std::cout << "Grid size: " << xsize << std::endl;
 
@@ -62,18 +63,19 @@ Schroedinger1D::Schroedinger1D(double xmin, double xmax, double dx){
     // initialize Hamilton
     H.resize(xsize, xsize);
     init_H(); 
-
-    // init time evaluation operator (const for each time step?)
-    S.resize(xsize, xsize);
-    init_S();
     std::cout << "Number of entries in Hamilton operator: " << H.size() << std::endl;
 
+    // init time evaluation operator (const for each time step)
+    S.resize(xsize, xsize);
+    init_S();
+    
     // init wave function
     psi_n.resize(xsize, 1);
     psi_np1.resize(xsize, 1);
 }
 
 void Schroedinger1D::init_H(){
+    // init Hamilton operator for 1D harmonic oscillator
     // not so bad if slow, using one time
     for (int n = 0; n<xsize; n++){
         for (int m = 0; m<xsize; m++){
@@ -88,13 +90,40 @@ void Schroedinger1D::init_H(){
             }
         }
     }
+    //print H to csv
+    std::ofstream file("build/A1_H.csv");
+    for (int n = 0; n<xsize; n++){
+        for (int m = 0; m<xsize; m++){
+            file << H(n,m).real() << ",";
+        }
+        file << "\n";
+    }
 }
 
 void Schroedinger1D::init_S(){
     // init time evolution operator
-    Cmatrix term = Cdouble(0.0, 1.0) / 2.0 * H*dt;
-    
+    Cmatrix term = dt/2 *Cdouble(0.0, 1.0) * H;
+
     S = (eye + term).inverse() * (eye - term);
+
+    //print S to csv
+    std::ofstream file("build/A1_S_real.csv");
+    for (int n = 0; n<xsize; n++){
+        for (int m = 0; m<xsize; m++){
+            file << S(n,m).real() << ",";
+        }
+        file << "\n";
+    }
+    file.close();
+
+    file.open("build/A1_S_imag.csv");
+    for (int n = 0; n<xsize; n++){
+        for (int m = 0; m<xsize; m++){
+            file << S(n,m).imag() << ",";
+        }
+        file << "\n";
+    }
+    file.close();
 }
 
 void Schroedinger1D::init_psi_gauss(double x0, double sigma){
@@ -120,17 +149,16 @@ void Schroedinger1D::init_psi_gauss(double x0, double sigma){
 }
 
 void Schroedinger1D::write_to_csv(std::ofstream& file){
-    // write wave function to csv file
+    // write propability density to csv file
     for (int n = 0; n<xsize; n++){
-        file << psi_n(n,0).real() << ",";
+        file << psi_n(n,0).real() * psi_n(n,0).real() + psi_n(n,0).imag() * psi_n(n,0).imag() << ",";
     }
     file << "\n";
 }
 
-void Schroedinger1D::run(double dt, int N, std::string path){
+void Schroedinger1D::run(int N, std::string path){
     // run simulation: time development of psi
     // SET BY USER
-    this->dt = dt;
     this->N = N;
 
     std::cout << "Running simulation..." << std::endl;
@@ -145,6 +173,13 @@ void Schroedinger1D::run(double dt, int N, std::string path){
     }
     file.close();
 
+    // print sum of propability density
+    double sum = 0.0;
+    for (int n = 0; n<xsize; n++){
+        sum += psi_n(n,0).real() * psi_n(n,0).real() + psi_n(n,0).imag() * psi_n(n,0).imag();
+    }
+    std::cout << "Sum of propability density: " << sum << std::endl;
+
     std::cout << "Simulation finished" << std::endl;
 }
 
@@ -152,15 +187,15 @@ int main() {
     // parameters
     double xmin = -10.0;
     double xmax = 10.0;
-    double dx = 1.0;
+    double dx = 0.1;
     double dt = 0.02;
     double x0 = 1.0;
     double sigma = 1.0;
 
     // run simulation
-    Schroedinger1D simulation(xmin, xmax, dx);
+    Schroedinger1D simulation(xmin, xmax, dx, dt);
     simulation.init_psi_gauss(x0, sigma);
-    simulation.run(dt, 1E5, "build/A1.csv");
+    simulation.run(1E4, "build/A1_psi.csv");
 
     return 0;
 }
