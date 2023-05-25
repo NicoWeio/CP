@@ -187,7 +187,7 @@ int main(){
     double dy = dx;
 
     double dt = 0.000003;
-    int n = 400000;
+    int n = 800000;
 
     // create Wave2D object
     Wave2D wave(a, b, dx, dy);

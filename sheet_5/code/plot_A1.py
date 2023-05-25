@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+print("\nStart Animation of time evolution of probability density...")
 # PARAMETERS
 xmin = -10
 xmax = 10
@@ -37,6 +38,7 @@ def init():
 
 # animation function
 def animate(i):
+    print(f"Create frame number {i}", end="\r")
     x = np.linspace(xmin, xmax, len(data[i]))
     y = data[i]
     line.set_data(x, y)
@@ -48,12 +50,11 @@ def animate(i):
 
 # call the animator
 # show only every 10th frame
-anim = FuncAnimation(fig, animate, init_func=init, frames=np.arange(0, len(data), 1), interval=1)
+anim = FuncAnimation(fig, animate, init_func=init, frames=np.arange(0, len(data), 5), interval=1)
 
 
 plt.show()
 
 # save animation as mp4 but only hold every 10th frame
-anim.save('build/A1_psi.mp4', writer='ffmpeg', fps=100)
+anim.save('build/A1_psi.mp4', writer='ffmpeg', fps=30)
 #anim.save('A1_psi.mp4', fps=30, extra_args=['-vcodec', 'libx264'], savefig_kwargs={'pad_inches':0.05}, dpi=200)
-

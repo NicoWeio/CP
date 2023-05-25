@@ -204,7 +204,6 @@ void Schroedinger1D::run(int N, std::string path){
 
         // check if sum of rho = |psi|^2 is equal to 1
         rho = calc_rho();
-
         if (rho > rho_max){
             rho_max = rho;
         }
@@ -225,7 +224,7 @@ int main() {
     // parameters
     double xmin = -10.0;
     double xmax = 10.0;
-    double dx = 0.01;
+    double dx = 0.1;
     double dt = 0.02;
     double x0 = 1.0;
     double sigma = 1.0;
