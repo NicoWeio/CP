@@ -47,7 +47,10 @@ def animate(i):
     return line
 
 # call the animator
-anim = FuncAnimation(fig, animate, init_func=init, frames=len(data), interval=1)
+# show only every 10th frame
+anim = FuncAnimation(fig, animate, init_func=init, frames=np.arange(0, len(data), 1), interval=1)
+
+
 plt.show()
 
 # save animation as mp4 but only hold every 10th frame

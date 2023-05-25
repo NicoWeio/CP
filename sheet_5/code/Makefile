@@ -3,6 +3,7 @@ all: build/plot.pdf
 # hier Python-Skripte:
 build/plot.pdf: plot.py build/A1 build/A2 build/A3 | build
 	python plot.py
+	python plot_A1.py
 
 build/A1: A1.cpp | build
 	g++ -O3 -o build/A1 A1.cpp
