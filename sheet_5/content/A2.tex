@@ -1,2 +1,107 @@
-\section{Aufgabe 2}
-\label{sec:A2}
+\section{Aufgabe 2 – Oszillierender Rechtseckmembran}
+\subsection{a) Diskretisierung der Wellengleichung}
+Vorerst soll die Wellengleichung in zwei Dimensionen
+\begin{equation}
+    \label{eqn:wave2d}
+    \frac{\partial^2 u}{\partial t^2} = c^2 \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right)
+\end{equation}
+diskretisiert werden.
+Der Raum ($x, y$), sowie die Zeit ($t$) werden in äquidistante Intervalle unterteilt:
+\begin{align}
+    t_n &= n \Delta t \\
+    x_i &= i \Delta x \\
+    y_j &= j \Delta y
+\end{align}
+Die kontinuierliche Funktion $u(x, y, t)$ wird durch die diskrete Funktion $u_{i,j}^n$ ersetzt.
+Sie gibt die Auslenkung des Membrans an.
+\\
+Die diskrete Form der zweiten Ableitung nach dem Ort $x$ ist
+\begin{equation}
+    \frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i+1,j}^n - 2 u_{i,j}^n + u_{i-1,j}^n}{\Delta x ^2}
+\end{equation}
+und analog für die Ableitung nach $y$ und $t$.
+\\
+Die diskreten Ableitungen werden in die Wellengleichung eingesetzt
+\begin{equation*}
+    \frac{u_{i,j}^{n+1} - 2 u_{i,j}^n + u_{i,j}^{n-1}}{\Delta t^2} = c^2 \left( \frac{u_{i+1,j}^n - 2 u_{i,j}^n + u_{i-1,j}^n}{\Delta x ^2} + \frac{u_{i,j+1}^n - 2 u_{i,j}^n + u_{i,j-1}^n}{\Delta y ^2} \right)
+\end{equation*}
+und diese anschließend nach $u_{i,j}^{n+1}$ umgestellt
+\begin{equation}
+    u_{i,j}^{n+1} = 2 u_{i,j}^n - u_{i,j}^{n-1} + \frac{c^2 \Delta t^2}{\Delta x^2} \left( u_{i+1,j}^n - 2 u_{i,j}^n + u_{i-1,j}^n \right) + \frac{c^2 \Delta t^2}{\Delta y^2} \left( u_{i,j+1}^n - 2 u_{i,j}^n + u_{i,j-1}^n \right)
+    \label{eqn:discretewave}
+\end{equation}
+, um die Auslenkung der Membran zum Zeitpunkt $t_{n+1}$ zu berechnen.
+
+\subsection{b) Stabilitätsanalyse}
+Jede Störung der Lösung $\delta u(x,y,t)$ kann in ihre Fourierkomponenten
+\begin{equation}
+    \delta u(x,y,t) = \tilde{c}_{\omega,k_x,k_y} \exp \left( i \left( k_x x + k_y y - \omega t \right) \right)
+\end{equation}
+zerlegt werden.
+Nach Einsetzen in \autoref{eqn:discretewave} und Verwendung der exponentiellen Darstellung von $\cos(x) = \frac{1}{2} \left( e^{ix} + e^{-ix} \right)$ ergibt sich
+\begin{equation*}
+    cos(\omega t) - 1 = \frac{c^2 \Delta t^2}{\Delta x^2} (\cos(k_x x) - 1) + \frac{c^2 \Delta t^2}{\Delta y^2} (\cos(k_y y) - 1) \, .
+\end{equation*}
+Uns interessiert nur der Betrag der Gleichung, da dieser die Stabilität der Lösung angibt.
+Unter Verwendung der Dreiecksungleichung $|a+b| \leq |a| + |b|$ folgt
+\begin{equation*}
+    |cos(\omega t) - 1| \leq \frac{c^2 \Delta t^2}{\Delta x^2} |(\cos(k_x x) - 1)| + \frac{c^2 \Delta t^2}{\Delta y^2} |(\cos(k_y y) - 1)| \, .
+\end{equation*}
+Da $max(|\cos(K_x x) - 1|) = 2$ gilt (analog für $y$), ergibt sich
+\begin{equation*}
+    |cos(\omega t) - 1| \leq 2 \frac{c^2 \Delta t^2}{\Delta x^2} + 2 \frac{c^2 \Delta t^2}{\Delta y^2} \, .
+\end{equation*}
+Die linke Seite kann für $\omega \in \mathbb{R}$ maximal den Wert $2$ annehmen.
+Daraus folgt für eine reelle Kreisfrequenz $\omega$ die Stabilitätsbedingung
+\begin{equation}
+    \Delta t \leq \frac{1}{c} \frac{\Delta x \Delta y}{\sqrt{\Delta x^2 + \Delta y^2}} \, .
+    \label{eqn:stability}
+\end{equation}
+Für komplexe $\omega$ kann der Betrag von $\cos(\omega t) - 1$ größer als $2$ werden und die Stabilitätsbedingung ist nicht mehr erfüllt.
+
+\subsection{c) Anfangsbedinungen}
+Die Anfangsbedingungen der Wellengleichung sind typischerweise die Auslenkung $u(x,y,0)$ und die Geschwindigkeit $\frac{\partial u}{\partial t}(x,y,0)$.
+Dabei entspricht $u(x,y,0)$ der diskreten Funktion $u_{i,j}^0$.
+\\
+Zur Verwendung der zweiten Bedingungen wird die Wellengleichung für $n=0$ betrachtet
+\begin{equation}
+    u_{i,j}^1 = 2 u_{i,j}^0 - u_{i,j}^{-1} + \frac{c^2 \Delta t^2}{\Delta x^2} \left( u_{i+1,j}^0 - 2 u_{i,j}^0 + u_{i-1,j}^0 \right) + \frac{c^2 \Delta t^2}{\Delta y^2} \left( u_{i,j+1}^0 - 2 u_{i,j}^0 + u_{i,j-1}^0 \right) \, .
+\end{equation}
+Der Funktionswert $u_{i,j}^{-1}$ ist nicht bekannt, daher wird dieser Term durch die Ableitung nach der Zeit ersetzt und nach $u_{i,j}^{-1}$ umgestellt:
+\begin{align}
+    \frac{\partial u}{\partial t}(x,y,0) &= \frac{u_{i,j}^1 - u_{i,j}^{-1}}{2 \Delta t}\\
+    u_{i,j}^{-1} &= u_{i,j}^1 - 2 \Delta t \frac{\partial u}{\partial t}(x,y,0)
+\end{align}
+Somit kann die Anfangsbedingung der Geschwindigkeit zur Bestimmung der Auslenkung $u_{i,j}^{1}$ verwendet werden.
+
+\subsection{d) Entdimensionalisierung}
+Die Wellengleichung \autoref{eqn:wave2d} wird in eine dimensionslose Form gebracht.
+Dazu werden die Variablen $x$, $y$ und $t$ durch die dimensionslosen Variablen
+\begin{align*}
+    \tilde{x} &= \frac{x}{\alpha} \\
+    \tilde{y} &= \frac{y}{\alpha} \\
+    \tilde{t} &= \frac{t}{\tau}
+\end{align*}
+ausgedrückt.
+Unter Verwendung der Kettenregel (exemplarisch für $x$)
+\begin{equation}
+    \frac{\partial u}{\partial x} = \frac{\partial u}{\partial \tilde{x}} \frac{\partial \tilde{x}}{\partial x} = \frac{1}{\alpha} \frac{\partial u}{\partial \tilde{x}}
+\end{equation}
+werden die dimensionslosen Variablen in die Wellengleichung eingesetzt:
+\begin{equation}
+    \frac{\partial^2 u}{\partial \tilde{t}^2} = \frac{\tau ^2 c^2}{\alpha^2} \frac{\partial^2 u}{\partial \tilde{x}^2} + \frac{\partial^2 u}{\partial \tilde{y}^2} \, .
+\end{equation}
+Es folgt die dimensionslose Wellengleichung
+\begin{equation}
+    \frac{\partial^2 u}{\partial \tilde{t}^2} = \frac{\partial^2 u}{\partial \tilde{x}^2} + \frac{\partial^2 u}{\partial \tilde{y}^2}
+    \label{eqn:wave2d_dimless}
+\end{equation}
+für $\tau = \frac{\alpha}{c}$.
+
+\subsection{e) Simulation}
+Die Simulation wird für $\Delta x = \Delta y = 0.01$ für die gegebenen Anfangsbedingungen durchgeführt.
+Es werden verschiedene Zeitschritte $\Delta t$ verwendet, um die Stabilitätsbedingung \autoref{eqn:stability} zu überprüfen.
+Die Ergebnisse können in den Animationen (z.B. \texttt{A2\_dtE-2.mp4} für $\Delta t = 0.01$) betrachtet werden.
+\\
+Für $\Delta t = 0.01$ ist die Simulation nicht stabil.
+Die theoretische Grenze wird durch die Stabilitätsbedingung \autoref{eqn:stability} angegeben und liegt bei $\Delta t = 0.00707$.

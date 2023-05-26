@@ -1,3 +1,89 @@
-\section{Aufgabe 1}
-\label{sec:A1}
-\includegraphics{code/build/plot.pdf}
+\section{Aufgabe 1 – Schrödinger Gleichung}
+
+\subsection{a) Entdimensionalisierung}
+Die eindimensionale Schrödinger Gleichung des quantenmechanischen harmonischen Oszillators lautet
+\begin{equation}
+    i \hbar \frac{\partial}{\partial t} \Psi(x,t) = \left( - \frac{\hbar^2}{2m} \frac{\partial^2}{\partial x^2} + \frac{1}{2} m \omega^2 x^2 \right) \Psi(x,t)
+\end{equation}
+mit der Planck-Konstante $\hbar$, der Masse $m$ und der Frequenz $\omega$.
+Durch Verwendung neuer Koordinaten
+\begin{align}
+    t &= \frac{\tilde{t}}{\tau} \\
+    x &= \frac{\tilde{x}}{\alpha} \\
+\end{align}
+kann die Gleichung entdimensionalisiert werden.
+Dabei soll $\tau = \frac{\omega}{2}$ verwendet werden.
+Durch Einsetzen der neuen Koordinaten in die Schrödinger Gleichung ergibt sich unter Verwendung der Kettenregel
+\begin{align}
+    \frac{\partial \Psi}{\partial t} &= \frac{\partial \Psi}{\partial \tilde{t}} \frac{\partial \tilde{t}}{\partial t} = \tau \frac{\partial \Psi}{\partial \tilde{t}} \\
+    \frac{\partial \Psi}{\partial x} &= \frac{\partial \Psi}{\partial \tilde{x}} \frac{\partial \tilde{x}}{\partial x} = \alpha \frac{\partial \Psi}{\partial \tilde{x}}
+\end{align}
+die entdimensionalisierte Schrödinger Gleichung
+\begin{equation}
+    \label{eqn:entdim}
+    i \frac{\partial}{\partial \tilde{t}} \Psi(\tilde{x},\tilde{t}) = \left(-\frac{\partial^2}{\partial \tilde{x}^2} + \tilde{x}^2 \right) \Psi(\tilde{x},\tilde{t}) \, .
+\end{equation}
+für $\alpha = \sqrt{\frac{m \omega}{\hbar}}$.
+\\
+Die Energieskalar 
+\begin{equation}
+    \hat{H} = \beta \tilde{\hat{H}}
+\end{equation}
+wird dadurch um den Faktor $\beta$ skaliert, welcher im Folgenden berechnet werden soll.
+Durch Einsetzen der neuen Koordinaten in den Hamilton Operator
+\begin{equation}
+    \tilde{\hat{H}} = \frac{1}{\beta} \hat{H} = - \frac{\hbar \omega}{2} \frac{\partial^2}{\partial \tilde{x}^2} + \frac{\hbar \omega}{2} \tilde{x}^2
+\end{equation}
+und anschließendem Vergleich mit \autoref{eqn:entdim} ergibt sich
+\begin{equation}
+    \beta = \frac{2}{\hbar \omega} \, .
+\end{equation}
+
+\subsection{b) Zeitentiwicklungsoperator}
+Der Zeitentiwicklungsoperator $S$ wird in der Methode \texttt{void S\_init()} berechnet.
+Dieser hängt allein von dem Hamilitonoperator (siehe \texttt{void H\_init()}) ab und der gewählten Zeitdiskretisierung $\Delta \tau = 0.02$.
+\\
+Die Dimension des Zeitentiwicklungsoperators ist $N \times N$, wobei $N$ die Anzahl der diskreten Punkte ist.
+Im Folgenden wird ein System im Bereich $x \in [-10,10]$ mit $\Delta x = 0.1$ untersucht.
+Der Hamiliton- $H$ und Zeitentiwicklungsoperator $S$ wird bei der Initialisierung in die CSV-Dateien \texttt{A1\_H.csv} und \texttt{A1\_S\_real.csv} bzw. \texttt{A1\_S\_imag.csv} geschrieben.
+
+\subsection{c) Gauss-Paket}
+Die Anfangsbedinung soll durch ein Gauss-Paket
+\begin{equation}
+    \Psi(x,0) = \left( \frac{1}{2 \pi \sigma} \right)^{\frac{1}{4}} \exp \left( - \frac{(x - x_0)^2}{4 \sigma}\right)
+\end{equation}
+beschrieben werden mit Erwartungswert $x_0$ und Varianz $\sigma$.
+In diskreter Form ergibt sich
+% psi_n(n,0) = pow(1.0/(2*M_PI*sigma), 0.25) * exp(-pow(x_min + n*dx - x0, 2.0) / (4.0*sigma));
+\begin{equation}
+    \Psi_i(0) = \left( \frac{1}{2 \pi \sigma} \right)^{\frac{1}{4}} \exp \left( - \frac{(x_i - x_0)^2}{4 \sigma}\right)
+\end{equation}
+mit $x = x_\text{min} + \Delta x \cdot i$ und $i \in \{0,1,2,...,N-1\}$.
+Die Dimension des Vektors $\Psi$ ist $N$, wobei $N$ die Anzahl der diskreten Punkte
+\begin{equation}
+    N = int (\frac{x_\text{max} - x_\text{min}}{\Delta x})
+\end{equation}
+ist.
+\\
+Im Folgenden wird $x_0 = \sigma = 1$ gewählt.
+\FloatBarrier
+
+\subsection{d) Zustand zum Zeitpunkt $t=10$}
+Der ort wird
+Der Zustand zum Zeitpunkt $t=10$ soll durch numerische Integration der Schrödinger Gleichung bestimmt werden.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A1_t10.pdf}
+    \caption{Zustand zum Zeitpunkt $t=10$.}
+\end{figure}
+Der Zustand muss einmalig bei der Initialisierung normiert werden.
+Der verwendete Crank-Nicholson-Algorithmus ist unitär und erhält die Norm des Zustands.
+Dies wird ebenfalls überprüft und in der Konsole ausgegeben.
+\FloatBarrier
+
+\subsection{e) Zeitentwicklung der Wahrscheinlichkeitsverteilung}
+Die Zeitentwicklung der Wahrscheinlichkeitsverteilung
+\begin{equation}
+    \rho(x,t) = \Psi^*(x,t) \Psi(x,t)
+\end{equation}
+kann in der Animation \texttt{A1\_psi.mp4} für die bekannten Parameter betrachtet werden.

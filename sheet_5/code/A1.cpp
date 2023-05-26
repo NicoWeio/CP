@@ -78,13 +78,14 @@ Schroedinger1D::Schroedinger1D(double xmin, double xmax, double dx, double dt){
 void Schroedinger1D::init_H(){
     // init Hamilton operator for 1D harmonic oscillator
     // not so bad if slow, using one time
+
     for (int n = 0; n<xsize; n++){
         for (int m = 0; m<xsize; m++){
             if(n == m-1 || n == m+1){ //side-diagonal
                 H(n,m) = Cdouble(-1/dx2, 0.0);
             }
             else if (n == m){ //diagonal
-                H(n,m) = Cdouble(2/dx2 + dx2 * n*n, 0.0); 
+                H(n,m) = Cdouble(2/dx2 + dx2 * (n+int(x_min/dx))*(n+int(x_min/dx)), 0.0); // n is not the index, but the position in the grid [-10, 10]
             }
             else{
                 H(n,m) = Cdouble(0.0, 0.0);
@@ -232,7 +233,7 @@ int main() {
     // run simulation
     Schroedinger1D simulation(xmin, xmax, dx, dt);
     simulation.init_psi_gauss(x0, sigma);
-    simulation.run(1E3, "build/A1_psi.csv");
+    simulation.run(500, "build/A1_psi.csv");
 
     return 0;
 }

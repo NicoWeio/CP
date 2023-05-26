@@ -186,12 +186,12 @@ int main(){
     double dx = 0.01; // 1.0;
     double dy = dx;
 
-    double dt = 0.000003;
-    int n = 800000;
+    double dt = 0.00001;
+    int n = 100000;
 
     // create Wave2D object
     Wave2D wave(a, b, dx, dy);
-    wave.run(n, dt, "build/u_n.csv", 1000);
+    wave.run(n, dt, "build/u_n.csv", 100);
 
     return 0;
 }
