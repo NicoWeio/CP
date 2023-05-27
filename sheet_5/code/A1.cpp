@@ -34,13 +34,13 @@ private:
     // helper functions
     void init_H();
     void init_S();
-    void prob_to_csv(std::ofstream& file);
+    void write_to_csv(std::ofstream& file_rho, std::ofstream& file_pisRe, std::ofstream& file_psiIm);
      
 
 public:
     Schroedinger1D(double xmin, double xmax, double dx, double dt);
     void init_psi_gauss(double x0, double sigma);
-    void run(int N, std::string path);
+    void run(int N, std::string path_rho, std::string path_psiRe, std::string path_psiIm);
     double calc_rho();
 };
 
@@ -163,18 +163,25 @@ double Schroedinger1D::calc_rho(){
     return sum;
 }
 
-void Schroedinger1D::prob_to_csv(std::ofstream& file){
+void Schroedinger1D::write_to_csv(std::ofstream& file_rho, std::ofstream& file_psiRe, std::ofstream& file_psiIm){
     // write propability density to csv file
     double rho = 0.0;
 
     for (int n = 0; n<xsize; n++){
+        // rho
         rho = psi_n(n,0).real() * psi_n(n,0).real() + psi_n(n,0).imag() * psi_n(n,0).imag();
-        file << rho << ",";
+        file_rho << rho << ",";
+
+        // psi
+        file_psiRe << psi_n(n,0).real() << ",";
+        file_psiIm << psi_n(n,0).imag() << ",";
     }
-    file << "\n";
+    file_rho << "\n";
+    file_psiRe << "\n";
+    file_psiIm << "\n";
 }
 
-void Schroedinger1D::run(int N, std::string path){
+void Schroedinger1D::run(int N, std::string path_rho, std::string path_psiRe, std::string path_psiIm){
     // run simulation: time development of psi
     // SET BY USER
     this->N = N;
@@ -185,10 +192,13 @@ void Schroedinger1D::run(int N, std::string path){
     double rho;
 
     std::cout << "Running simulation..." << std::endl;
-    std::ofstream file(path);
+    std::ofstream file_rho(path_rho);
+    std::ofstream file_psiRe(path_psiRe);
+    std::ofstream file_psiIm(path_psiIm);
+
 
     // initial state
-    prob_to_csv(file);
+    write_to_csv(file_rho, file_psiRe, file_psiIm);
     rho = calc_rho();
     rho_max = rho;
     rho_min = rho;
@@ -201,7 +211,7 @@ void Schroedinger1D::run(int N, std::string path){
         psi_np1 = S * psi_n;
         psi_n = psi_np1;
         
-        prob_to_csv(file);
+        write_to_csv(file_rho, file_psiRe, file_psiIm);
 
         // check if sum of rho = |psi|^2 is equal to 1
         rho = calc_rho();
@@ -212,7 +222,9 @@ void Schroedinger1D::run(int N, std::string path){
             rho_min = rho;
         }
     }
-    file.close();
+    file_rho.close();
+    file_psiRe.close();
+    file_psiIm.close();
 
     std::cout << "Sum of probability density rho should be 1 for each time step." << std::endl;
     std::cout << "Max: " << rho_max << std::endl;
@@ -233,7 +245,7 @@ int main() {
     // run simulation
     Schroedinger1D simulation(xmin, xmax, dx, dt);
     simulation.init_psi_gauss(x0, sigma);
-    simulation.run(500, "build/A1_psi.csv");
+    simulation.run(500, "build/A1_rho.csv", "build/A1_psiRe.csv", "build/A1_psiIm.csv");
 
     return 0;
 }
