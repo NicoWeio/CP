@@ -42,7 +42,7 @@ double Logmap::measure(int N, std::string path_out){
 
         std::cout << n_iter+1 << " / " << N << "\r";
         x = r*x*(1-x);
-        write_to_csv(file);
+        file << n_iter << "," << x << "\n";
     }
 
     file.close();
