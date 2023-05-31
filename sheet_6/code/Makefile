@@ -3,6 +3,7 @@ all: build/bifurkation_log.pdf
 # hier Python-Skripte:
 build/bifurkation_log.pdf: A1.py build/A1 build/A2 | build
 	python A1.py
+	python plot_A2.py
 
 build/A1: A1.cpp | build
 	g++ -O3 -o build/A1 A1.cpp

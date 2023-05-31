@@ -26,9 +26,9 @@ def map_log(N: int, x0: float, r: float):
 
 if __name__ == "__main__":
     # set values
-    spacing = 1E-3
+    spacing = 1E-2
     min_r = 0.0
-    max_r = 10.0
+    max_r = 5.0
 
     # create array with r values
     r_space = np.arange(min_r, max_r, spacing)
