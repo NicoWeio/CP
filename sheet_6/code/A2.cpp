@@ -61,7 +61,7 @@ void LorenzModel::rk4(double dt, int nsteps, std::string path_out){
 
         file << x(0) << "," << x(1) << "," << x(2) << "\n"; //write to csv
     }
-    std::cout << std::endl << "Done." << std::endl;
+    std::cout << "\nDone.\n\n";
 }
 
 int main() {
