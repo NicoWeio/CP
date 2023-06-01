@@ -67,4 +67,4 @@ if __name__ == "__main__":
     plt.xlabel('r')
     plt.ylabel('x')
     plt.savefig("build/bifurkation_log.pdf")
-    plt.show()
+    plt.clf()
