@@ -18,10 +18,11 @@ Folgende Fälle können durch die Wahl des Parameters $r$ erzeugt werden
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{code/build/A1_bifurkation_log.pdf}
+    \includegraphics[width=0.9\textwidth]{code/build/A1_bifurkation_log.pdf}
     \caption{Bifurkationsdiagramm für die logistische Abbildung.}
     \label{fig:A1_bifurkation}
 \end{figure}
+\FloatBarrier
 
 \subsection{Kubische Abbildung}
 Die kubische Abbildung ist definiert als
@@ -29,10 +30,12 @@ Die kubische Abbildung ist definiert als
     x_{n+1} = r x_n^3 - x_n
 \end{equation}
 mit $x_n \in [-\sqrt{1+r}, \sqrt{1+r}]$.
-
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{code/build/A1_bifurkation_cube.pdf}
+    \includegraphics[width=0.9\textwidth]{code/build/A1_bifurkation_cube.pdf}
     \caption{Bifurkationsdiagramm für die kubische Abbildung.}
     \label{fig:A1_kubisch}
 \end{figure}
+Es werden die gleichen Anfangswerte x0 verwendet.
+Die Grenzen für $r$ werden auf $[0, 3]$ gesetzt.
+Für größere Werte von $r$ divergiert die Folge.
