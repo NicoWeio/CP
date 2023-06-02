@@ -1,3 +1,38 @@
-\section{Aufgabe 1}
+\section{Aufgabe 1 – Bifurkationsdiagramme}
 \label{sec:A1}
-\includegraphics{code/build/plot.pdf}
+\subsection{Logistische Abbildung}
+Die logistische Abbildung ist definiert als
+\begin{equation}
+    x_{n+1} = r x_n (1 - x_n)
+\end{equation}
+mit $x_n \in [0, 1]$.
+Es werden Anfangswerte $x_0$ zwischen $0$ und $1$ mit einer Schrittweite von $0.001$ und $r$ zwischen $0$ und $4$ mit einer Schrittweite von $0.01$ gewählt.
+\\
+Folgende Fälle können durch die Wahl des Parameters $r$ erzeugt werden
+\begin{itemize}
+    \item $r < 1$: Die Folge konvergiert gegen $0$
+    \item $1 <= r < 3$: Die Folge konvergiert gegen einen konstanten Wert
+    \item $3 <= r < 3.57$: Die Folge konvergiert gegen einen periodischen Wert
+    \item $r > 3.57$: Chaos
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A1_bifurkation_log.pdf}
+    \caption{Bifurkationsdiagramm für die logistische Abbildung.}
+    \label{fig:A1_bifurkation}
+\end{figure}
+
+\subsection{Kubische Abbildung}
+Die kubische Abbildung ist definiert als
+\begin{equation}
+    x_{n+1} = r x_n^3 - x_n
+\end{equation}
+mit $x_n \in [-\sqrt{1+r}, \sqrt{1+r}]$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A1_bifurkation_cube.pdf}
+    \caption{Bifurkationsdiagramm für die kubische Abbildung.}
+    \label{fig:A1_kubisch}
+\end{figure}
