@@ -1,45 +1,58 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-class EVpower // determines ev for 4x4 matrix
+class EVpower // determines eigenvalues and -vectors for 4x4 matrix
 {
 private:
     Eigen::Matrix4f A;
+    Eigen::Vector4f x0;
+    int maxiter;
+
     Eigen::Vector4f v_n;
     Eigen::Vector4f w_n;
-    int maxiter;
+
+    //results
+    Eigen::Matrix4f eigenvector;
+    Eigen::Vector4f eigenvalue;
 
     void powerMethod();
 
 public:
     EVpower(Eigen::Matrix4f A, Eigen::Vector4f x0, int maxiter);
-    double getEigenvalue();
-    Eigen::Vector4f getEigenvector();
+    Eigen::Vector4f getEigenvalue();
+    Eigen::Matrix4f getEigenvector();
 };
 
 EVpower::EVpower(Eigen::Matrix4f A, Eigen::Vector4f x0, int maxiter){
     this->A = A;
-    this->v_n = x0;
+    this->x0 = x0;
     this->maxiter = maxiter;
 
     powerMethod();
 }
 
 void EVpower::powerMethod(){
-    for (int i = 0; i < maxiter; i++){
-        w_n = A*v_n;
-        v_n = w_n/w_n.norm();
-        std::cout << "Step: " << i+1 << " / " << maxiter << "\r";    
-        //std::cout << "v_n:\n" << v_n << std::endl;
+    for (int ind_ev = 0; ind_ev<4; ind_ev++){ // loop over eigenvalues
+        v_n = x0;
+        for (int i = 0; i < maxiter; i++){ // loop over iterations
+            w_n = A*v_n;
+            v_n = w_n/w_n.norm();
+        }
+        // save results
+        eigenvector.col(ind_ev) = v_n;
+        eigenvalue(ind_ev) = (v_n.transpose() * A * v_n)(0);
+
+        // adjust A for next iteration (set current eigenvalue to 0)
+        A = A - eigenvalue(ind_ev) * v_n * v_n.transpose();
     }
 }
 
-double EVpower::getEigenvalue(){
-    return (v_n.transpose() * A * v_n)(0);
+Eigen::Vector4f EVpower::getEigenvalue(){
+    return eigenvalue;
 }
 
-Eigen::Vector4f EVpower::getEigenvector(){
-    return v_n;
+Eigen::Matrix4f EVpower::getEigenvector(){
+    return eigenvector;
 }
 
 
@@ -51,19 +64,24 @@ int main(){
         -3, -1, 3, 6,
          4, 7, 6, 4;
 
-    // calc ev with Eigen::Eigenvalues()
-    auto ev_EIGEN = A.eigenvalues();
+    // calc eigenvalues and -vectors with Eigen
+    auto eval_EIGEN = A.eigenvalues();
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4f> eigensolver(A);
+    Eigen::Matrix4f evec_EIGEN = eigensolver.eigenvectors();
     std::cout << "Exercise 1: Matrix diagonalization – Power method" << std::endl;
-    std::cout << "Eigenvalues determined by Eigen:\n" << ev_EIGEN << std::endl;
-    
-    // calc ev with power method
+    std::cout << "Eigenvalues determined by Eigen:\n" << eval_EIGEN << std::endl;
+    std::cout << "Eigenvectors determined by Eigen:\n" << evec_EIGEN << "\n\n";
+
+    // define initial vector x0
     Eigen::Vector4f x0;
     x0 << 1, 1, 1, 1;
 
+    // calc eigenvalues and -vectors with power method
     EVpower evpower(A, x0, 1000);
-    double eval_power = evpower.getEigenvalue();
-    Eigen::Vector4f evec_power = evpower.getEigenvector();
-    std::cout << "Eigenvalues determined by power method:\n" << eval_power << std::endl;
-    std::cout << "Eigenvector determined by power method:\n" << evec_power << std::endl;
+    Eigen::Vector4f eval_power = evpower.getEigenvalue();
+    Eigen::Matrix4f evec_power = evpower.getEigenvector();
+
+    std::cout << "Eigenvalues determined by power method:\n" << eval_power << "\n";
+    std::cout << "Eigenvectors determined by power method:\n" << evec_power << "\n\n";
     return 0;
 }
