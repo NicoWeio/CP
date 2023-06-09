@@ -1,0 +1,27 @@
+\section{Aufgabe 1 – LCG Number Generator}
+\label{sec:A1}
+
+Der \emph{Linear Congruential Generator} (LCG) ist ein Algorithmus zur Erzeugung von Pseudozufallszahlen der Form
+\begin{equation}
+  \label{eq:lcg}
+  r_{n+1} = (a r_n + c) \mod m
+\end{equation}
+und ist in der Klasse \texttt{LCG} implementiert.
+Der RNG wird für 4 verschiedene Parameter-Sets $a$, $c$, $m$ und $r_0$(Seed) getestet.
+Es werden $N = 10^5$ Zufallszahlen erzeugt und in dem Histogramm \autoref{fig:lcg} dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth]{code/build/A1_hist_lcg.pdf}
+    \caption{Histogramm der Zufallszahlen des LCG für 4 verschiedene Parameter-Sets.}
+    \label{fig:lcg}
+\end{figure}
+
+Ebenfalls werden die Zufallszahlen auf Korrelationen getestet.
+Dazu wird die Korrelation sofort aufeinanderfolgender generierter Werte $r_n$ und $r_{n+1}$ für $\frac{N}{2}$-Paare bzw. $m$-Paare (wenn $m<N$) berechnet.
+Die Ergebnisse sind in \autoref{fig:lcg_corr} dargestellt.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\textwidth]{code/build/A1_corr_lcg.pdf}
+    \caption{Korrelation der Zufallszahlen des LCG für 4 verschiedene Parameter-Sets.}
+    \label{fig:lcg_corr}
+\end{figure}
