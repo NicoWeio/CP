@@ -77,7 +77,7 @@ int main(){
     x0 << 1, 1, 1, 1;
 
     // calc eigenvalues and -vectors with power method
-    EVpower evpower(A, x0, 1000);
+    EVpower evpower(A, x0, 100);
     Eigen::Vector4f eval_power = evpower.getEigenvalue();
     Eigen::Matrix4f evec_power = evpower.getEigenvector();
 

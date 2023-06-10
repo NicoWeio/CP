@@ -1,2 +1,44 @@
-\section{Aufgabe 1}
+\section{Aufgabe 1 – Matrix Diagonalisierung mittels Potenzmethode}
 \label{sec:A1}
+%A = 1, -2, -3, 4,
+%-2, 2, -1, 7,
+%-3, -1, 3, 6,
+% 4, 7, 6, 4;
+Es sollen die Eigenwerte der Matrix $A$
+\begin{equation}
+    A = \begin{pmatrix}
+    1 & -2 & -3 & 4 \\
+    -2 & 2 & -1 & 7 \\
+    -3 & -1 & 3 & 6 \\
+    4 & 7 & 6 & 4
+    \end{pmatrix}
+\end{equation}
+bestimmt werden.
+Die Diagonalmatrix ergibt durch die Eigenwerte $\lambda_i$ auf der Diagonalen.
+\\
+Vorerst werden die Eigenwerte mithilfe der Bibliothek \textit{Eigen::eigenvalues()} auf
+\begin{equation}
+    \lambda_1 = -9.27794 \quad \lambda_2 = 4.59705 \quad \lambda_3 = 2.59583 \quad \lambda_4 = 12.0851
+    \label{eq:eigenvalues}
+\end{equation}
+bestimmt.
+\\
+Die Potenzmethode für eine $4 \times 4$-Matrix ist in der Klasse \textit{EVpower} implementiert.
+Dabei wird die Matrix $A$ mit einem Startvektor $v_0$ multipliziert und das Ergebnis $v_1$ normiert.
+Dieser Vorgang wird $N=100$ mal wiederholt.
+Der Vektor $v_n$ konvergiert gegen den Eigenvektor $v_n$ des betragsmäßig größten Eigenwertes $\lambda$.
+\\
+Der Eigenwert $\lambda$ berechnet sich dann nach
+\begin{equation}
+    \lambda = v_n^T A v_n
+\end{equation}
+, dabei ist $v_n$ normiert.
+Anschließend wird die Matrix $A$ um den Eigenwert $\lambda$ und den Eigenvektor $v_n$ reduziert:
+\begin{equation}
+    A' = A - \lambda v_n v_n^T.
+\end{equation}
+Der Eigenwert wird somit auf Null gesetzt und es kann erneut die Potenzmethode angewendet werden um den nächsten betragsmäßig größten Eigenwert zu bestimmen.
+\\
+Es wird der Startvektor $v_0 = (1, 1, 1, 1)^T$ gewählt.
+Die berechneten Eigenwerte stimmen auf mindestens $5$ Nachkommastellen mit den Eigenwerten aus Gleichung \eqref{eq:eigenvalues} überein.
+Die Eigenwerte, sowie -vektoren werden beim Ausführen der Datei \textit{A1.cpp} in der Konsole ausgegeben.
