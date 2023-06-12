@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <functional>
 #include <math.h>
 
 class LCG
@@ -13,19 +14,19 @@ private:
     long long c;
     long long m;
 
-    // number of random numbers
-    int n;
     // random numbers
     double *r;
 
     // helper methods
-    void scale(double lower, double upper);
+    void scale(int n, double lower, double upper);
 
 public:
 //a, c and, m is 64bit integer
     LCG(double r_0, long long a, long long c, long long m);
     double* uniform(int n, double lower, double upper);
     double* normal(int n, std::string method);
+    double* neumann(int n, double lower, double upper, std::function<double(double)> f);
+    double* inverse(int n, double lower, double upper, std::function<double(double)> f_inv);
     double* boxmueller(int n);
     double* centrallimit(int n);
     ~LCG();
@@ -37,7 +38,6 @@ LCG::LCG(double r_0, long long a, long long c, long long m){
     this->c = c;
     this->m = m;
 
-    this->n = 0;
     this->r = NULL;
 }
 LCG::~LCG(){
@@ -46,7 +46,7 @@ LCG::~LCG(){
     }
 }
 
-void LCG::scale(double lower, double upper){
+void LCG::scale(int n, double lower, double upper){
     // max value currently: m-1
     // scale r to [lower, upper]
     for (int i = 0; i<n; i++){
@@ -55,7 +55,6 @@ void LCG::scale(double lower, double upper){
 }
 
 double* LCG::uniform(int n, double lower, double upper){
-    this->n = n;
     r = new double[n]; // create array with size n
 
     // LCG algorithm
@@ -63,7 +62,7 @@ double* LCG::uniform(int n, double lower, double upper){
         r[ind] = fmod((a*r_0 + c), m); // calc r_n+1
         r_0 = r[ind]; // update r_0 (seed)
     }
-    scale(lower, upper);
+    scale(n, lower, upper);
     return r;
 }
 
@@ -131,5 +130,38 @@ double* LCG::centrallimit(int n){
 
     return r;
 }
+
+double* LCG::neumann(int n, double lower, double upper, std::function<double(double)> f){
+    double* r = new double[n];
+    double x, y; // random numbers x, y
+    
+    for (int i = 0; i<n; i++){
+        // take x as random number if y>f(x)
+        do {
+            x = uniform(1, lower, upper)[0];
+            y = uniform(1, 0.0, 1.0)[0];
+
+        } while(y > f(x));
+        r[i] = x;
+    }
+    return r;
+}
+
+double* LCG::inverse(int n, double lower, double upper, std::function<double(double)> f_inv){
+    double* r = new double[n];
+    double x, y; // random numbers x, y
+    
+    for (int i = 0; i<n; i++){
+        // take x as random number if y>f(x)
+        do {
+            y = uniform(1, 0.0, 1.0)[0];
+            x = f_inv(y);
+
+        } while(x < lower || x > upper);
+        r[i] = x;
+    }
+    return r;
+}
+
 
 #endif

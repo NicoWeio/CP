@@ -1,6 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# constants
+NUM_BINS_EX1 = 10
+NUM_BINS_EX2 = 30
+ALPHA = 0.5
+N = 10**5
+
+# TASK 1
 # a)
 # read in csv, last line is empty, one column
 r_a = np.genfromtxt('build/A1_a.csv', delimiter=',', skip_footer=1)
@@ -8,15 +15,11 @@ r_b = np.genfromtxt('build/A1_b.csv', delimiter=',', skip_footer=1)
 r_c = np.genfromtxt('build/A1_c.csv', delimiter=',', skip_footer=1)
 r_d = np.genfromtxt('build/A1_d.csv', delimiter=',', skip_footer=1)
 
-NUM_BINS = 10
-ALPHA = 0.5
-N = 10**5
-
 plt.figure(figsize=(6, 4), dpi=200)
-plt.hist(r_a, bins=NUM_BINS, label=r'$a) r0 = 1234, a = 20, c = 120, m = 6075$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_b, bins=NUM_BINS, label=r'$b) r0 = 1234, a = 137, c = 187, m = 256$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_c, bins=NUM_BINS, label=r'$c) r0 = 123456789, a = 65539, c = 0, m = 2^{31}$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_d, bins=NUM_BINS, label=r'$d) r0 = 1234, a = 7^5, c = 0, m = 2^{31} − 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(r_a, bins=NUM_BINS_EX1, label=r'$a) r0 = 1234, a = 20, c = 120, m = 6075$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(r_b, bins=NUM_BINS_EX1, label=r'$b) r0 = 1234, a = 137, c = 187, m = 256$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(r_c, bins=NUM_BINS_EX1, label=r'$c) r0 = 123456789, a = 65539, c = 0, m = 2^{31}$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(r_d, bins=NUM_BINS_EX1, label=r'$d) r0 = 1234, a = 7^5, c = 0, m = 2^{31} − 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
 
 plt.title(r'Histogram of LCG RNG with $10^5$ numbers')
 plt.xlabel('Random numbers')
@@ -60,29 +63,55 @@ fig.tight_layout()
 fig.savefig('build/A1_corr_lcg.pdf')
 
 
+
 # TASK 2
+# numpy normal distribution
+rnorm0 = np.random.normal(size=N)
+
 # a) Box-Mueller
-rnorm = np.genfromtxt('build/A2_boxmueller.csv')
-mean_a = np.mean(rnorm)
-var_a = np.var(rnorm)
+rnorm1 = np.genfromtxt('build/A2_boxmueller.csv')
+mean_a = np.mean(rnorm1)
+var_a = np.var(rnorm1)
 plt.figure(figsize=(6, 4), dpi=200)
-plt.hist(rnorm, bins=NUM_BINS, label=r'$\mu = 0, \sigma = 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(rnorm1, bins=NUM_BINS_EX2, label='Box-Mueller method', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(rnorm0, bins=NUM_BINS_EX2, label='numpy.random', alpha=ALPHA, histtype='step', linewidth=4.0)
 plt.title(f'Box-Mueller RNG with mean {mean_a:.3f} and variance {var_a:.3f}')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
+plt.legend()
 plt.savefig('build/A2_hist_boxmueller.pdf') 
 
 # b) Central limit theorem
-rnorm = np.genfromtxt('build/A2_central.csv')
-mean_b = np.mean(rnorm)
-var_b = np.var(rnorm)
+rnorm2 = np.genfromtxt('build/A2_central.csv')
+mean_b = np.mean(rnorm2)
+var_b = np.var(rnorm2)
 plt.figure(figsize=(6, 4), dpi=200)
-plt.hist(rnorm, bins=NUM_BINS, label=r'$\mu = 0, \sigma = 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.title(f'Central limit theorem with mean {mean_b:.3f} and variance {var_b:.3f}')
+plt.hist(rnorm2, bins=NUM_BINS_EX2, label='Central limit', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(rnorm0, bins=NUM_BINS_EX2, label='numpy.random', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.title(f'Central limit with mean {mean_b:.3f} and variance {var_b:.3f}')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
+plt.legend()
 plt.savefig('build/A2_hist_central.pdf')
 
+# c) Von Neumann rejection: sin(x)/2
+r_neumann = np.genfromtxt('build/A2_neumann.csv')
+plt.figure(figsize=(6, 4), dpi=200)
+plt.hist(r_neumann, bins=NUM_BINS_EX2, label='Von Neumann rejection', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.title(r'Von Neumann rejection for $f(x) = \frac{1}{2} \sin(x)$')
+plt.xlabel('Random numbers')
+plt.ylabel('# of occurences')
+plt.legend()
+plt.savefig('build/A2_hist_neumann.pdf')
 
+# d) Inversion method: 3x^2
+r_inv = np.genfromtxt('build/A2_inverse.csv')
+plt.figure(figsize=(6, 4), dpi=200)
+plt.hist(r_inv, bins=NUM_BINS_EX2, label='Inversion method', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.title(r'Inversion method for $f(x) = 3x^2$')
+plt.xlabel('Random numbers')
+plt.ylabel('# of occurences')
+plt.legend()
+plt.savefig('build/A2_hist_inversion.pdf')
 
 plt.show()
