@@ -59,4 +59,30 @@ fig.suptitle(r'Correlation between two immediately consecutively generated numbe
 fig.tight_layout()
 fig.savefig('build/A1_corr_lcg.pdf')
 
+
+# TASK 2
+# a) Box-Mueller
+rnorm = np.genfromtxt('build/A2_boxmueller.csv')
+mean_a = np.mean(rnorm)
+var_a = np.var(rnorm)
+plt.figure(figsize=(6, 4), dpi=200)
+plt.hist(rnorm, bins=NUM_BINS, label=r'$\mu = 0, \sigma = 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.title(f'Box-Mueller RNG with mean {mean_a:.3f} and variance {var_a:.3f}')
+plt.xlabel('Random numbers')
+plt.ylabel('# of occurences')
+plt.savefig('build/A2_hist_boxmueller.pdf') 
+
+# b) Central limit theorem
+rnorm = np.genfromtxt('build/A2_central.csv')
+mean_b = np.mean(rnorm)
+var_b = np.var(rnorm)
+plt.figure(figsize=(6, 4), dpi=200)
+plt.hist(rnorm, bins=NUM_BINS, label=r'$\mu = 0, \sigma = 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.title(f'Central limit theorem with mean {mean_b:.3f} and variance {var_b:.3f}')
+plt.xlabel('Random numbers')
+plt.ylabel('# of occurences')
+plt.savefig('build/A2_hist_central.pdf')
+
+
+
 plt.show()
