@@ -26,7 +26,7 @@ public:
     double* uniform(int n, double lower, double upper);
     double* normal(int n, std::string method);
     double* neumann(int n, double lower, double upper, std::function<double(double)> f);
-    double* inverse(int n, double lower, double upper, std::function<double(double)> f_inv);
+    double* inverse(int n, double lower, double upper, std::function<double(double)> f);
     double* boxmueller(int n);
     double* centrallimit(int n);
     ~LCG();
@@ -147,7 +147,7 @@ double* LCG::neumann(int n, double lower, double upper, std::function<double(dou
     return r;
 }
 
-double* LCG::inverse(int n, double lower, double upper, std::function<double(double)> f_inv){
+double* LCG::inverse(int n, double lower, double upper, std::function<double(double)> f){
     double* r = new double[n];
     double x, y; // random numbers x, y
     
@@ -155,7 +155,7 @@ double* LCG::inverse(int n, double lower, double upper, std::function<double(dou
         // take x as random number if y>f(x)
         do {
             y = uniform(1, 0.0, 1.0)[0];
-            x = f_inv(y);
+            x = f(y);
 
         } while(x < lower || x > upper);
         r[i] = x;

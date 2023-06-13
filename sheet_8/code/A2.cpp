@@ -32,7 +32,8 @@ double f_sin(double x){
 
 // inverse function for d)
 // f = 3*x^2
-double f_inv(double x){
+double f_inv_dev(double x){
+    //p(x)*dx/dy
     return sqrt(x/3);
 }
 
@@ -59,7 +60,7 @@ int main(){
     writearr(r_neumann, N, "build/A2_neumann.csv");
 
     // d) Inverse method
-    double* r_inv = rng.inverse(N, 0.0, 3.0, f_inv);
+    double* r_inv = rng.inverse(N, 0.0, 3.0, f_inv_dev);
     writearr(r_inv, N, "build/A2_inverse.csv");
 
     return 0;
