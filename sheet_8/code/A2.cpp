@@ -34,7 +34,7 @@ double f_sin(double x){
 // f = 3*x^2
 double f_inv_dev(double x){
     //p(x)*dx/dy
-    return pow(x, 1/3);
+    return pow(x, 1.0/3.0);
 }
 
 int main(){
