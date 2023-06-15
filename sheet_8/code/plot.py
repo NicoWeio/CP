@@ -114,6 +114,7 @@ plt.xlabel('Random numbers')
 plt.ylabel('Probability density')
 plt.xticks([0, np.pi/2, np.pi], [r'$0$', r'$\frac{\pi}{2}$', r'$\pi$'])
 plt.legend()
+plt.tight_layout()
 plt.savefig('build/A2_hist_neumann.pdf')
 
 
@@ -129,4 +130,4 @@ plt.legend()
 
 plt.savefig('build/A2_hist_inversion.pdf')
 
-plt.show()
+#plt.show()

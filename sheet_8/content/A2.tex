@@ -2,5 +2,74 @@
 \label{sec:A2}
 Wir haben bereits die Erzeugung von gleichverteilten Pseudo-Zufallszahlen in \autoref{sec:A1} behandelt.
 In dieser Aufgabe werden nun auf Grundlage der gleichverteilten Zufallszahlen im Bereich $[0,1]$ verschiedene Verteilungen erzeugt.
+Im Folgenden werden $N = 10^5$ Zufallszahlen generiert.
+Anschließend wird die Wahrscheinlichkeitsdichte der Zufallszahlen in einem Histogramm ($20$ Bins) mit der wahren Verteilung verglichen.
+\\
+Alle Transformationsmethoden sind in der LCG-Klasse in \textit{LCG.h} realisiert.
+Zur Verwendung der Klasse muss ein Seed über den Konstrukter gesetzt werden, anschließend können die verschiedenen Methoden zur Erzeugung von Zufallszahlen aufgerufen werden.
 
-\subsection{Gaußverteilung mittels Box-Muller-Methode}
+\subsection{a) Gaußverteilung mittels Box-Muller-Methode}
+Es werden normalverteilte Zufallszahlen mit der Box-Muller-Methode (Polarmethode) erzeugt.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A2_hist_boxmueller.pdf}
+    \caption{Standardnormalverteilte Zufallszahlen generiert mittels Box-Muller-Methode.}
+\end{figure}
+\FloatBarrier
+
+\subsection{b) Gaußverteilung mittels Zentralwertsatz}
+Der Zentralwertsatz besagt, dass die Summe von gleichverteilten Zufallszahlen gegen eine Normalverteilung konvergiert.
+Für jede der $N=10^5$ zu generierenden Zufallszahlen werden $n=100$ gleichverteilte Zufallszahlen aufsummiert.
+Der Erwartungswert und die Varianz der resultierenden Verteilung beträgt
+\begin{equation}
+    <x> = \frac{n}{2}, \qquad \sigma_x^2 = \frac{n}{12} 
+\end{equation}
+und kann dementsprechend korrigiert werden.
+Problematisch an dieser Methode ist, dass keine wahre Normalverteilung erzeugt wird.
+Werte außerhalb des Intervalls $[-n/2, n/2]$ können nicht generiert werden, obwohl die Gaußverteilung nicht begrenzt ist.
+Ein weiterer Nachteil ist die ineffizienz dieses Algorithmus, da für jede zu erzeugende Zufallszahl $n$ gleichverteilte Zufallszahlen erzeugt werden müssen.
+Umso größer $n$ desto näher ist die Verteilung an einer wahren Normalverteilung.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A2_hist_central.pdf}
+    \caption{Standardnormalverteilte Zufallszahlen generiert mittels Zentralwertsatz.}
+\end{figure}
+\FloatBarrier
+
+\subsection{c) Von Neumann Verwerungsmethode}
+Die Idee hinter der von Neumann Verwerungsmethode ist simpel und funktioniert für jede begrenzte Verteilung.
+Es sollen Zufallszahlen der Verteilung
+\begin{equation}
+    p_1(x) = \frac{\sin(x)}{2}
+\end{equation}
+im Bereich $[0, \pi)$ generiert werden.
+Es werden zwei gleichverteilte Zufallszahlen $x, y$ im Bereich $[0,1]$ erzeugt.
+Gilt $y < p_1(x)$ so wird die Zufallszahl $x$ akzeptiert.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A2_hist_neumann.pdf}
+    \caption{Generierte Zufallszahlen der Verteilung $\sin(x)/2$ mittels Verwerfungsmethode.}
+\end{figure}
+\FloatBarrier
+
+\subsection{d) Inversionsmethode}
+Die Inversionmethode funktioniert für alle invertierbare Funktionen und ist sehr effizient.
+Es sollen Zufallszahlen der Verteilung
+\begin{equation}
+    p_2(x) = 3 \cdot x^2
+\end{equation}
+im Bereich $[0, 1)$ erzeugt werden.
+Die Funktion nimmt also Werte von $p_2(0)=0$ bis $p_2(1)=3$ an.
+Es werden also gleichverteilten Zufallszahlen im Bereich $[0,3]$ erzeugt.
+Diese werden mit einem Faktor $G^{-1}$ multipliziert, der sich aus der Inverse der integrierten Verteilung $G$ ergibt:
+\begin{align*}
+    G &= \int 3 x^2 \, \mathrm{d}x = x^3 \\
+    G^{-1} &= x^{1/3}
+\end{align*}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{code/build/A2_hist_inversion.pdf}
+    \caption{Generierte Zufallszahlen der Verteilung $3x^2$ mittels Inversionsmethode.}
+\end{figure}
+\FloatBarrier
+
