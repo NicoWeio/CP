@@ -10,21 +10,22 @@ N = 10**5
 # TASK 1
 # a)
 # read in csv, last line is empty, one column
-r_a = np.genfromtxt('build/A1_a.csv', delimiter=',', skip_footer=1)
-r_b = np.genfromtxt('build/A1_b.csv', delimiter=',', skip_footer=1)
-r_c = np.genfromtxt('build/A1_c.csv', delimiter=',', skip_footer=1)
-r_d = np.genfromtxt('build/A1_d.csv', delimiter=',', skip_footer=1)
-
+r_a = np.genfromtxt('build/A1_a.csv')
+r_b = np.genfromtxt('build/A1_b.csv')
+r_c = np.genfromtxt('build/A1_c.csv')
+r_d = np.genfromtxt('build/A1_d.csv')
+print(r_a[-1])
 plt.figure(figsize=(6, 4), dpi=200)
-plt.hist(r_a, bins=NUM_BINS_EX1, label=r'$a) r0 = 1234, a = 20, c = 120, m = 6075$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_b, bins=NUM_BINS_EX1, label=r'$b) r0 = 1234, a = 137, c = 187, m = 256$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_c, bins=NUM_BINS_EX1, label=r'$c) r0 = 123456789, a = 65539, c = 0, m = 2^{31}$', alpha=ALPHA, histtype='step', linewidth=4.0)
-plt.hist(r_d, bins=NUM_BINS_EX1, label=r'$d) r0 = 1234, a = 7^5, c = 0, m = 2^{31} − 1$', alpha=ALPHA, histtype='step', linewidth=4.0)
+plt.hist(r_a, bins=NUM_BINS_EX1, label=r'$a) r0 = 1234, a = 20, c = 120, m = 6075$', alpha=ALPHA, histtype='step', linewidth=2.0)
+plt.hist(r_b, bins=NUM_BINS_EX1, label=r'$b) r0 = 1234, a = 137, c = 187, m = 256$', alpha=ALPHA, histtype='step', linewidth=2.0)
+plt.hist(r_c, bins=NUM_BINS_EX1, label=r'$c) r0 = 123456789, a = 65539, c = 0, m = 2^{31}$', alpha=ALPHA, histtype='step', linewidth=2.0)
+plt.hist(r_d, bins=NUM_BINS_EX1, label=r'$d) r0 = 1234, a = 7^5, c = 0, m = 2^{31} − 1$', alpha=ALPHA, histtype='step', linewidth=2.0)
 
 plt.title(r'Histogram of LCG RNG with $10^5$ numbers')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
 plt.legend(fontsize='medium', loc='lower center')
+plt.grid()
 plt.tight_layout()
 plt.savefig('build/A1_hist_lcg.pdf')
 
@@ -66,6 +67,7 @@ fig.savefig('build/A1_corr_lcg.pdf')
 
 # TASK 2
 # numpy normal distribution
+np.random.seed(1234)
 rnorm0 = np.random.normal(size=N)
 
 # a) Box-Mueller
@@ -79,6 +81,7 @@ plt.title(f'Box-Mueller RNG with mean {mean_a:.3f} and variance {var_a:.3f}')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
 plt.legend()
+plt.grid()
 plt.savefig('build/A2_hist_boxmueller.pdf') 
 
 # b) Central limit theorem
@@ -92,6 +95,7 @@ plt.title(f'Central limit with mean {mean_b:.3f} and variance {var_b:.3f}')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
 plt.legend()
+plt.grid()
 plt.savefig('build/A2_hist_central.pdf')
 
 # c) Von Neumann rejection: sin(x)/2
@@ -101,7 +105,9 @@ plt.hist(r_neumann, bins=NUM_BINS_EX2, label='Von Neumann rejection', alpha=ALPH
 plt.title(r'Von Neumann rejection for $f(x) = \frac{1}{2} \sin(x)$')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
+plt.xticks([0, np.pi/2, np.pi], [r'$0$', r'$\frac{\pi}{2}$', r'$\pi$'])
 plt.legend()
+plt.grid()
 plt.savefig('build/A2_hist_neumann.pdf')
 
 # d) Inversion method: 3x^2
@@ -112,6 +118,7 @@ plt.title(r'Inversion method for $f(x) = 3x^2$')
 plt.xlabel('Random numbers')
 plt.ylabel('# of occurences')
 plt.legend()
+plt.grid()
 plt.savefig('build/A2_hist_inversion.pdf')
 
 plt.show()

@@ -19,6 +19,8 @@ private:
 
     // helper methods
     void scale(int n, double lower, double upper);
+    double* boxmueller(int n);
+    double* centrallimit(int n);
 
 public:
 //a, c and, m is 64bit integer
@@ -27,8 +29,7 @@ public:
     double* normal(int n, std::string method);
     double* neumann(int n, double lower, double upper, std::function<double(double)> f);
     double* inverse(int n, double lower, double upper, std::function<double(double)> f);
-    double* boxmueller(int n);
-    double* centrallimit(int n);
+    
     ~LCG();
 };
 
@@ -121,12 +122,16 @@ double* LCG::centrallimit(int n){
         r_unit = uniform(N, 0, 1);
 
         // sum of unit drawn numbers - N/2
-        y = -N/2;
+        y = -N/2; // fix mean
         for (int j = 0; j<N; j++){
             y += r_unit[j];
         }
         r[i] = y;
-    }
+        
+        // fix variance
+        r[i] = r[i] * sqrt(12.0/N);
+
+    }    
 
     return r;
 }
