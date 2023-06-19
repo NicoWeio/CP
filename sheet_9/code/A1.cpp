@@ -1,38 +1,30 @@
 #include <iostream>
-#include <functional>
+#include "optimize.h"
 
-class Bisection
-{
-private:
-    // variables
-    double x, y, z, eps;
-    std::function<double(double)> f;
-
-    // functions
-    double min(std::function<double(double)> f0);
-
-public:
-    Bisection(std::function<double(double)> f, double x0, double y0, double z0, double eps);
-};
-
-Bisection::Bisection(std::function<double(double)> f, double x0, double y0, double z0, double eps){
-    if(x0>y0 || y0>z0 || eps<=0){
-        std::cerr << "Invalid arguments!" << std::endl;
-        return;
-    }
-    this->x = x0;
-    this->y = y0;
-    this->z = z0;
-    this->f = f;
+double f(double x){
+    return x*x - 2;
 }
-
-double Bisection::min(std::function<double(double)> f){
-    double u_left, u_right;
-
-
-}
-
 int main(){
+    std::cout << "\nExercise 1 >>>" << std::endl;
+    double eps = 1E-9;
+
+    // a) interval biscetion method
+    std::cout << "a) Bisection method\n";
+    double x0 = -0.5;
+    double y0 = -0.1;
+    double z0 = 2.0;
+
+    Bisection bisection(f, x0, y0, z0, eps);
+    double min_bisection = bisection.min("build/A1_bisection.csv");
+    std::cout << "Minimum at x0 = " << min_bisection << "\n\n";
+    
+    // b) Newtons method
+    std::cout << "b) Newtons method\n";
+    double x00 = 1.0;
+
+    Newton newton(f, x00, eps);
+    double min_newton = newton.min("build/A1_newton.csv");
+    std::cout << "Minimum at x0 = " << min_newton << "\n\n";
 
     return 0;
 }
