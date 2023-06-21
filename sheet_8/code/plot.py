@@ -32,10 +32,10 @@ plt.savefig('build/A1_hist_lcg.pdf')
 
 # b)
 # pairs of consecutive values
-pairs_a = np.column_stack((r_a[1:], r_a[:-1]))  # (rn, rn-1) pairs
-pairs_b = np.column_stack((r_b[1:], r_b[:-1]))
-pairs_c = np.column_stack((r_c[1:], r_c[:-1]))
-pairs_d = np.column_stack((r_d[1:], r_d[:-1]))
+pairs_a = np.column_stack((r_a[1::2], r_a[:-1:2]))  # (rn, rn-1) pairs
+pairs_b = np.column_stack((r_b[1::2], r_b[:-1:2]))
+pairs_c = np.column_stack((r_c[1::2], r_c[:-1:2]))
+pairs_d = np.column_stack((r_d[1::2], r_d[:-1:2]))
 
 # plot the pairs as points in a scatter plot
 fig, ax = plt.subplots(2, 2, figsize=(7, 7), dpi=200)
