@@ -1,8 +1,9 @@
 all: build/A1_values.pdf
 
 # hier Python-Skripte:
-build/A1_values.pdf: plot.py build/A1 build/A2 | build
-	python plot.py
+build/A1_values.pdf: plot_A1.py plot_A2.py build/A1 build/A2 | build
+	python plot_A1.py
+	python plot_A2.py
 
 build/A1: A1.cpp optimize.h | build
 	g++ -O3 -o build/A1 A1.cpp

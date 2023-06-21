@@ -30,4 +30,4 @@ plt.ylabel('Error')
 plt.legend()
 plt.savefig('build/A1_error.pdf')
 
-plt.show()
+#plt.show()

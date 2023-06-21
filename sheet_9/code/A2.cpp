@@ -19,7 +19,7 @@ private:
     Eigen::MatrixXd r, v, r_best;
     Eigen::VectorXd r_global_best;
 
-    // init random number generator for r1,r2
+    // random number generator for r1,r2
     std::random_device rd;
     std::mt19937 gen;
     std::uniform_real_distribution<> dis;
@@ -29,10 +29,11 @@ private:
     void global_best();
     void personal_best();
     void update();
+    void save_data(std::ofstream& file_global, std::ofstream& file_local, std::ofstream& file_full);
 
 public:
     ParticleSwarm(std::function<double(double, double)> f, double r_min, double r_max, int n_particles, int n_iterations, double w, double c1, double c2);
-    Eigen::VectorXd run(std::string path_out);
+    Eigen::VectorXd run(std::string name_data);
 };
 
 ParticleSwarm::ParticleSwarm(std::function<double(double, double)> f, double r_min, double r_max, int n_particles, int n_iterations, double w, double c1, double c2){
@@ -102,23 +103,47 @@ void ParticleSwarm::update(){
     }
 }
 
-Eigen::VectorXd ParticleSwarm::run(std::string path_out){
+Eigen::VectorXd ParticleSwarm::run(std::string name_data){
     // open file
-    std::ofstream file(path_out);
-    file << "step, x, y, f(x,y)" << std::endl;
-    file << 0 << ", " << r_global_best(0) << ", " << r_global_best(1) << ", " << f(r_global_best(0), r_global_best(1)) << std::endl;
+    std::ofstream file_global(name_data+"_globalbest.txt");
+    std::ofstream file_local(name_data+"_localbest.txt");
+    std::ofstream file_full(name_data+"_full.txt");
+    //file_global << r_global_best(0) << ", " << r_global_best(1) << ", " << f(r_global_best(0), r_global_best(1)) << std::endl;
+   
     // run algorithm
-    for (int i = 1; i < n_iterations; i++){
+    for (int i = 0; i < n_iterations; i++){
         update();
-        file << i << ", " << r_global_best(0) << ", " << r_global_best(1) << ", " << f(r_global_best(0), r_global_best(1)) << std::endl;
+        save_data(file_global, file_local, file_full);
     }
 
     // close file
-    file.close();
+    file_global.close();
+    file_local.close();
+    file_full.close();
 
     // return global best
     return r_global_best;
 }
+void ParticleSwarm::save_data(std::ofstream& file_global, std::ofstream& file_local, std::ofstream& file_full){
+    // save global best
+    // x, y, f(x,y)
+    file_global << r_global_best(0) << "," << r_global_best(1) << "," << f(r_global_best(0), r_global_best(1)) << std::endl;
+
+    // save local best with delimeter , and |
+    // x_1, y_1, f(x_1,y_1) | x_2, y_2, f(x_2,y_2) | ...
+    for (int i = 0; i < n_particles; i++){
+        file_local << r_best(i,0) << "," << r_best(i,1) << "," << f(r_best(i,0), r_best(i,1)) << " | ";
+    }
+    file_local << std::endl;
+
+    // save full data with delimeter , and |
+    // x_1, y_1, f(x_1,y_1) | x_2, y_2, f(x_2,y_2) | ...
+    for (int i = 0; i < n_particles; i++){
+        file_full << r(i,0) << ", " << r(i,1) << ", " << f(r(i,0), r(i,1)) << " | ";
+    }
+    file_full << std::endl;
+}
+
 
 double f(double x, double y){
     return pow(x-1.9, 2) + pow(y-2.1, 2) + 2*cos(4*x+2.8) + 3*sin(2*y+0.6);
@@ -128,7 +153,7 @@ int main(){
     // variables
     double r_min = -5.0;
     double r_max = 5.0;
-    double w = 0.8;
+    double w = 0.1;//0.8;
     double c1 = 0.1;
     double c2 = 0.1;
 
@@ -137,7 +162,7 @@ int main(){
 
     // minimize f(x,y)
     ParticleSwarm PS(f, r_min, r_max, Nparticles, Niter, w, c1, c2);
-    Eigen::VectorXd r = PS.run("build/A2.csv");
+    Eigen::VectorXd r = PS.run("build/A2");
     std::cout << "x = " << r(0) << ", y = " << r(1) << ", f(x,y) = " << f(r(0), r(1)) << std::endl;
     return 0;
 }
