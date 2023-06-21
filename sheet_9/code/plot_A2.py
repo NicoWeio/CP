@@ -41,11 +41,12 @@ NUM_ITER = data_local.shape[0]
 
 # b) plot global best and local best
 plt.figure(figsize=(10, 10), dpi=200)
+colors = plt.cm.get_cmap('tab10', NUM_PARTICLES)
 
 iter_lin = np.arange(0, NUM_ITER)
 for i in range(NUM_PARTICLES):
-    plt.plot(iter_lin, data_local[:,i,2], label=f'local best {i+1}')
-plt.plot(iter_lin, data_global[:,0,2], '--', label='global best')
+    plt.plot(iter_lin, data_local[:,i,2], label=f'local best {i+1}', color=colors(i), linewidth=1.5)
+plt.plot(iter_lin, data_global[:,0,2], '--', label='global best', color='red', linewidth=2)
 
 plt.xlim(0, 20)
 plt.xlabel('iteration')
@@ -95,8 +96,6 @@ def animate(i):
     ax.plot_surface(X, Y, Z, cmap='twilight', edgecolor='grey', alpha=0.8, facecolors=plt.cm.twilight(Z/np.max(Z)))
     #viridis, seismic
 
-    colors = plt.cm.get_cmap('tab10', NUM_PARTICLES)
-    
     # animate the trace of the particles
     for j in range(NUM_PARTICLES):
         ax.plot(data_local[:i,j,0], data_local[:i,j,1], data_local[:i,j,2], label=f'local best {j+1}', color=colors(j), linewidth=1.5, alpha=0.7)

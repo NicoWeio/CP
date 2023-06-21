@@ -150,10 +150,12 @@ double f(double x, double y){
 }
 
 int main(){
+    std::cout << "\nExercise 2 >>>" << std::endl;
+
     // variables
     double r_min = -5.0;
     double r_max = 5.0;
-    double w = 0.1;//0.8;
+    double w = 0.8;//0.8;
     double c1 = 0.1;
     double c2 = 0.1;
 

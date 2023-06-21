@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
+print("\nPlotting...\n")
+
 # data
 df_bisection = pd.read_csv('build/A1_bisection.csv')
 df_newton = pd.read_csv('build/A1_newton.csv')
