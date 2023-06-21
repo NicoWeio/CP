@@ -132,7 +132,7 @@ int main(){
     double c1 = 0.1;
     double c2 = 0.1;
 
-    int Niter = 1000;
+    int Niter = 100;
     int Nparticles = 10;
 
     // minimize f(x,y)
