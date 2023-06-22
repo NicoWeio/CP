@@ -106,5 +106,8 @@ def animate(i):
 
 # animation show first 50 frames
 anim = animation.FuncAnimation(fig, animate, frames=100, interval=100)
-plt.show()
 anim.save('build/A2_c.mp4', writer='ffmpeg', fps=15)
+
+# snapshot of the last frame
+animate(100)
+plt.savefig("build/A2_c.pdf")
