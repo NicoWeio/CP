@@ -1,2 +1,53 @@
-\section{Aufgabe 2}
+\section{Aufgabe 2 –  Teilchenschwarm-Optimierung}
 \label{sec:A2}
+
+Zur Lösung des mathematischen Problems \textit{Minimierung mehrdimensionaler Funktionen} wird ein physikalischer Ansatz verwendet.
+Dabei wird ein Schwarm aus $N=10$ Teilchen simuliert, die sich in einem mehrdimensionalen Raum bewegen.
+Die Orte $\vec{r}_{n+1}$ und Geschwindigkeiten $\vec{v}_{n+1}$ der Teilchen werden dabei iterativ nach folgenden Gleichungen berechnet:
+\begin{align}
+    \vec{r}_{n+1} &= \vec{r}_n + \vec{v}_{n} \\
+    \vec{v}_{n+1} &= \omega \vec{v}_n + c_1 r_1 (\vec{r}_n^\text{pers. best} - \vec{r}_n) + c_2 r_2 (\vec{r}^\text{global best} - \vec{r}_n)
+\end{align}
+Dabei sind $\omega=0.8$, $c_1=0.1$ und $c_2=0.1$ Gewichtungsfaktoren und $r_1, r_2 \in [0,1]$ Zufallszahlen, die in jeder Iteration neu gezogen werden.
+Die persönlich beste Position $\vec{r}_n^\text{pers. best}$ wird für jedes Teilchen gespeichert und die global beste Position $\vec{r}^\text{global best}$ wird für den gesamten Schwarm gespeichert.
+Als beste Position wird diejenige gewählt, die den kleinsten Funktionswert $f(\vec{r})$ liefert.
+\\
+Es soll das globale Minimum der Funktion
+\begin{align}
+   f(\vec{r}) = f (x, y) = (x - 1.9)^2 + (y - 2.1)^2 + 2 \cos(4x + 2.8) + 3 \sin(2y + 0.6)
+\end{align}
+gefunden werden.
+\\
+Die Startpositionen der Teilchen werden zufällig im Bereich $x, y \in [-5, 5]$ gewählt.
+Die Startgeschwindigkeiten werden zufällig im Bereich $v_x, v_y \in [-1, 1]$ gewählt.
+\\
+Der Algorithmus wird mit $N=10$ Teilchen und $M=100$ Iterationen ausgeführt.
+\\
+In Abbildung \ref{fig:A2_b} ist die Entwicklung der besten Teilchenpositionen in Abhängigkeit der Iterationen dargestellt.
+Es werden nur die ersten 20 Iterationen dargestellt, da sich die Positionen der Teilchen danach nicht mehr wesentlich ändern.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{code/build/A2_b.pdf}
+    \caption{Verlauf der besten persönlichen Funktionswerte $f(\vec{r}_n^\text{pers. best})$ für jedes Teilchen, sowie des besten globalen Funktionswerts $f(\vec{r}^\text{global best})$ für den gesamten Schwarm in Abhängigkeit der Iterationen.}
+    \label{fig:A2_b}
+\end{figure}
+Zuletzt wird der Verlauf der Teilchenpositionen in einer 3D-Animation \texttt{A2\_c\_w08.mp4} für $\omega=0.8$ dargestellt.
+In Abbildung \ref{fig:A2_c} ist ein Schnappschuss aus der Animation zusehen.
+Dieser zeigt die Spur der Teilchenpositionen, sowie die Funktion $f(x, y)$.
+\\
+Die beste Position des Schwarmes ist
+%x = 1.67055, y = 2.06245, f(x,y) = -4.94241
+\begin{align}
+    \vec{r}^\text{global best} &= \begin{pmatrix}
+        1.67055 \\
+        2.06245
+    \end{pmatrix}\\
+    f(\vec{r}^\text{global best}) &= -4.94241
+\end{align}
+und stellt somit das globale Minimum dar.
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{code/build/A2_c.pdf}
+    \caption{Spur der Teilchenpositionen, sowie die Funktion $f(x, y)$.}
+    \label{fig:A2_c}
+\end{figure}

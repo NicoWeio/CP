@@ -40,6 +40,7 @@ NUM_PARTICLES = data_local.shape[1]
 NUM_ITER = data_local.shape[0]
 
 # b) plot global best and local best
+plt.rcParams.update({'font.size': 14}) #set fontsize
 plt.figure(figsize=(10, 10), dpi=200)
 colors = plt.cm.get_cmap('tab10', NUM_PARTICLES)
 
@@ -58,7 +59,7 @@ plt.savefig("build/A2_b.pdf")
 # c) 3D animation of the moving particles
 def f(x):
     return (x[0] - 1.9)**2 + (x[1] - 2.1)**2 + 2*np.cos(4*x[0] + 2.8) + 3*np.sin(2*x[1] + 0.6)
-
+plt.rcParams.update({'font.size': 10}) #set fontsize
 fig = plt.figure(figsize=(10, 10), dpi=200)
 ax = plt.axes(projection='3d', azim=30, elev=30)
 
@@ -102,12 +103,13 @@ def animate(i):
     ax.plot(data_global[:i,0,0], data_global[:i,0,1], data_global[:i,0,2], '--', label='global best', color='red', linewidth=2)
 
     # set legend outside
-    ax.legend(loc='upper left', fontsize=6)#bbox_to_anchor=(1.05, 1)
+    ax.legend(loc='upper left', fontsize=10)#bbox_to_anchor=(1.05, 1)
 
 # animation show first 50 frames
-anim = animation.FuncAnimation(fig, animate, frames=100, interval=100)
-anim.save('build/A2_c.mp4', writer='ffmpeg', fps=15)
+anim = animation.FuncAnimation(fig, animate, frames=NUM_ITER, interval=100)
+anim.save('build/A2_c.mp4', writer='ffmpeg', fps=20)
 
 # snapshot of the last frame
 animate(100)
 plt.savefig("build/A2_c.pdf")
+#plt.show()
