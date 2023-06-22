@@ -1,7 +1,7 @@
-all: build/A1_values.pdf
+all: build/A2_c.mp4
 
 # hier Python-Skripte:
-build/A1_values.pdf: plot_A1.py plot_A2.py build/A1 build/A2 | build
+build/A2_c.mp4: plot_A1.py plot_A2.py build/A1 build/A2 | build
 	python plot_A1.py
 	python plot_A2.py
 
