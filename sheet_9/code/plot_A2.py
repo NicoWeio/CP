@@ -99,17 +99,18 @@ def animate(i):
 
     # animate the trace of the particles
     for j in range(NUM_PARTICLES):
-        ax.plot(data_local[:i,j,0], data_local[:i,j,1], data_local[:i,j,2], label=f'local best {j+1}', color=colors(j), linewidth=1.5, alpha=0.7)
+        ax.plot(data_local[:i,j,0], data_local[:i,j,1], data_local[:i,j,2], '.', label=f'local best {j+1}', color=colors(j), linewidth=1.0, alpha=0.7)
+        ax.plot(data_full[:i,j,0], data_full[:i,j,1], data_full[:i,j,2], label=f'full {j+1}', color=colors(j), linewidth=1.5, alpha=0.7)
     ax.plot(data_global[:i,0,0], data_global[:i,0,1], data_global[:i,0,2], '--', label='global best', color='red', linewidth=2)
 
     # set legend outside
-    ax.legend(loc='upper left', fontsize=10)#bbox_to_anchor=(1.05, 1)
+    ax.legend(loc='upper left', fontsize=5)#bbox_to_anchor=(1.05, 1)
 
 # animation show first 50 frames
 anim = animation.FuncAnimation(fig, animate, frames=NUM_ITER, interval=100)
-anim.save('build/A2_c.mp4', writer='ffmpeg', fps=20)
+#plt.show()
+anim.save('build/A2_c.mp4', writer='ffmpeg', fps=10)
 
 # snapshot of the last frame
 animate(100)
 plt.savefig("build/A2_c.pdf")
-#plt.show()
